@@ -1,4 +1,4 @@
-import { isProblemDetails } from '#/integrations/tanstack-query/problemDetailsUtils'
+import { isProblemDetails } from './problem-details'
 
 interface ServerValidationError {
   name: string

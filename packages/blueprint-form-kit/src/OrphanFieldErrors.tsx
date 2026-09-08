@@ -3,7 +3,7 @@ import { AlertTriangle } from 'lucide-react'
 import { useFormContext } from './form-context'
 import { useSelector } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { useT } from '#/translations'
+import { useFormKitLabels } from './labels'
 
 /**
  * Renders validation errors for schema fields that have no corresponding
@@ -18,7 +18,7 @@ import { useT } from '#/translations'
  */
 export default function OrphanFieldErrors() {
     const form = useFormContext()
-    const { common } = useT()
+    const labels = useFormKitLabels()
     const fieldMeta = useSelector(form.store, (s) => s.fieldMeta)
     const submissionAttempts = useSelector(
         form.store,
@@ -55,7 +55,7 @@ export default function OrphanFieldErrors() {
     return (
         <Alert
             color="red"
-            title={common.validationErrors}
+            title={labels.validationErrors}
             icon={<AlertTriangle size={16} />}
         >
             <List size="sm">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseServerErrors } from '@csag-blueprint/react-form-kit'
+import { parseServerErrors } from '../parse-server-errors'
 
 /**
  * The form kit maps any 4xx carrying the FastEndpoints `errors` array onto the form — not just 400.

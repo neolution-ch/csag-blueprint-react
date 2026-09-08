@@ -36,11 +36,24 @@ export default [
     },
   },
   {
+    // Tests are never published: tsdown only follows src/index.ts and `files` ships dist
+    // alone. So a test may reach for the root workspace dev tooling.
+    files: [
+      'packages/*/src/**/__tests__/**',
+      'packages/*/src/**/*.test.{ts,tsx}',
+    ],
+    rules: { 'import/no-extraneous-dependencies': 'off' },
+  },
+  {
     ignores: [
       '**/dist/**',
       'eslint.config.js',
       'prettier.config.js',
+      // Build and test configuration, deliberately outside every package's tsconfig
+      // `include` (which is src-only), so the type-aware rules cannot parse them.
       '**/tsdown.config.ts',
+      '**/vitest.config.ts',
+      'vitest.config.ts',
     ],
   },
 ]

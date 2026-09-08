@@ -9,7 +9,10 @@ import {
 } from '@mantine/core'
 import Axios from 'axios'
 import { ClipboardCopy, Check } from 'lucide-react'
-import { isProblemDetails, toProblemDetails } from './problemDetailsUtils'
+import {
+    isProblemDetails,
+    toProblemDetails,
+} from '@collana-solutions/blueprint-core'
 
 const ERROR_TITLE = 'Something went wrong'
 

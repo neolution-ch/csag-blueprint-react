@@ -11,14 +11,14 @@ pre-extraction history of every file here lives in that repository.
 
 Published to [npmjs.com/org/collana-solutions](https://www.npmjs.com/org/collana-solutions).
 
-| Package | What it is |
-| --- | --- |
-| [`@collana-solutions/blueprint-core`](packages/blueprint-core#readme) | RFC 9457 ProblemDetails vocabulary and the FastEndpoints error parser. No React, no Mantine. |
-| [`@collana-solutions/blueprint-i18n`](packages/blueprint-i18n#readme) | Typed translation kit: context factory, client cache and ETag helpers, empty-translations recovery guard. |
-| [`@collana-solutions/blueprint-form-kit`](packages/blueprint-form-kit#readme) | TanStack Form + Mantine + Zod form kit. |
-| [`@collana-solutions/blueprint-api-kit`](packages/blueprint-api-kit#readme) | Axios and TanStack Query plumbing for an ASP.NET backend: error notifications, query client, Orval instances. |
-| [`@collana-solutions/blueprint-zod-kit`](packages/blueprint-zod-kit#readme) | Zod v4 integration for a .NET backend: the Orval `stringFormat` polyfill and a localized error map. |
-| [`@collana-solutions/blueprint-theming`](packages/blueprint-theming#readme) | White-label tenant theming: one brand hex to a full Mantine colour tuple plus CSS custom properties. |
+| Package                                                                       | What it is                                                                                                    |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [`@collana-solutions/blueprint-core`](packages/blueprint-core#readme)         | RFC 9457 ProblemDetails vocabulary and the FastEndpoints error parser. No React, no Mantine.                  |
+| [`@collana-solutions/blueprint-i18n`](packages/blueprint-i18n#readme)         | Typed translation kit: context factory, client cache and ETag helpers, empty-translations recovery guard.     |
+| [`@collana-solutions/blueprint-form-kit`](packages/blueprint-form-kit#readme) | TanStack Form + Mantine + Zod form kit.                                                                       |
+| [`@collana-solutions/blueprint-api-kit`](packages/blueprint-api-kit#readme)   | Axios and TanStack Query plumbing for an ASP.NET backend: error notifications, query client, Orval instances. |
+| [`@collana-solutions/blueprint-zod-kit`](packages/blueprint-zod-kit#readme)   | Zod v4 integration for a .NET backend: the Orval `stringFormat` polyfill and a localized error map.           |
+| [`@collana-solutions/blueprint-theming`](packages/blueprint-theming#readme)   | White-label tenant theming: one brand hex to a full Mantine colour tuple plus CSS custom properties.          |
 
 ## Versioning
 
@@ -72,12 +72,12 @@ add one yourself.
 
 Deliberate, and listed so they are not mistaken for drift.
 
-| Area | Here | Org precedent | Why |
-| --- | --- | --- | --- |
-| Build | `tsdown` (rolldown), ESM only, unminified | rollup + `rollup-plugin-typescript2` + terser, emitting cjs/esm/umd | These packages export React Context objects, and dual CJS/ESM publishing is the classic dual-package hazard — one resolved copy of a context silently fails to match the other. There is no CJS or UMD consumer, `rollup-plugin-typescript2` is unmaintained against TypeScript 6, and minifying a library only destroys the consumer's stack traces. |
-| Formatting | Matches the consuming app (`semi: false`, `singleQuote: true`) | `printWidth: 140`, semicolons, double quotes | Keeps the extraction a file move rather than a whole-tree reformat, and keeps cherry-picks between the two repos from conflicting on every line. |
-| Manifest | `exports` only | plus `umd:main`, `jsdelivr`, `unpkg`, `jsnext:main`, `module`, `source` | Every one of those is read by a tool this repo does not use. `publint` and `attw` run in CI to keep the remaining shape honest. |
-| Package manager | pnpm 11 | yarn 1 | Changesets v3 dropped Yarn Classic support. |
+| Area            | Here                                                           | Org precedent                                                           | Why                                                                                                                                                                                                                                                                                                                                                   |
+| --------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build           | `tsdown` (rolldown), ESM only, unminified                      | rollup + `rollup-plugin-typescript2` + terser, emitting cjs/esm/umd     | These packages export React Context objects, and dual CJS/ESM publishing is the classic dual-package hazard — one resolved copy of a context silently fails to match the other. There is no CJS or UMD consumer, `rollup-plugin-typescript2` is unmaintained against TypeScript 6, and minifying a library only destroys the consumer's stack traces. |
+| Formatting      | Matches the consuming app (`semi: false`, `singleQuote: true`) | `printWidth: 140`, semicolons, double quotes                            | Keeps the extraction a file move rather than a whole-tree reformat, and keeps cherry-picks between the two repos from conflicting on every line.                                                                                                                                                                                                      |
+| Manifest        | `exports` only                                                 | plus `umd:main`, `jsdelivr`, `unpkg`, `jsnext:main`, `module`, `source` | Every one of those is read by a tool this repo does not use. `publint` and `attw` run in CI to keep the remaining shape honest.                                                                                                                                                                                                                       |
+| Package manager | pnpm 11                                                        | yarn 1                                                                  | Changesets v3 dropped Yarn Classic support.                                                                                                                                                                                                                                                                                                           |
 
 ## License
 

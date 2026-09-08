@@ -1,9 +1,8 @@
 import { createTheme, mergeMantineTheme } from '@mantine/core'
 import type { MantineColorsTuple, MantineTheme } from '@mantine/core'
-import { theme } from '#/theme'
 
 /**
- * Lightness ladder measured from the hand-tuned cyan tuple in `#/theme`.
+ * Lightness ladder measured against a hand-tuned cyan tuple.
  * Index 0 is the lightest shade, index 9 the darkest. Input lightness is
  * intentionally discarded so tenant colours keep readable contrast.
  */
@@ -103,19 +102,28 @@ export function generateShades(hex: string): MantineColorsTuple {
 }
 
 /**
- * Builds the Mantine theme for a tenant. Overrides the `cyan` tuple (the
- * configured `primaryColor`) so every primary-colour usage follows the
- * tenant colour. Returns the base theme unchanged when no valid hex is set.
+ * Builds the Mantine theme for a tenant, overriding the colour tuple named by the base
+ * theme's `primaryColor` so every primary-colour usage follows the tenant colour. Returns
+ * the base theme unchanged when no valid hex is set.
+ *
+ * `colorKey` defaults to `baseTheme.primaryColor`, which is what makes the tenant colour
+ * track whichever palette the app actually designates as primary rather than a hardcoded
+ * name. Pass it explicitly only to override a non-primary tuple.
  */
-export function buildTenantTheme(hex: string | null | undefined): MantineTheme {
+export function buildTenantTheme(
+  baseTheme: MantineTheme,
+  hex: string | null | undefined,
+  options?: { colorKey?: string },
+): MantineTheme {
   if (!isValidHexColor(hex)) {
-    return theme
+    return baseTheme
   }
+  const colorKey = options?.colorKey ?? baseTheme.primaryColor
   return mergeMantineTheme(
-    theme,
+    baseTheme,
     createTheme({
       colors: {
-        cyan: generateShades(hex),
+        [colorKey]: generateShades(hex),
       },
     }),
   )

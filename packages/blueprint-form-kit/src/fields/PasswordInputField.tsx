@@ -2,13 +2,13 @@ import { PasswordInput } from '@mantine/core'
 import type { PasswordInputProps } from '@mantine/core'
 import { useFieldContext } from '../form-context'
 import { useSelector } from '@tanstack/react-store'
-import { useT } from '#/translations'
+import { useFormKitLabels } from '../labels'
 
 type Props = Omit<PasswordInputProps, 'value' | 'onChange' | 'onBlur' | 'error'>
 
 export default function PasswordInputField(props: Props) {
     const field = useFieldContext<string>()
-    const { common } = useT()
+    const labels = useFormKitLabels()
     const submissionAttempts = useSelector(
         field.form.store,
         (s) => s.submissionAttempts,
@@ -18,7 +18,7 @@ export default function PasswordInputField(props: Props) {
             id={field.name}
             name={field.name}
             visibilityToggleButtonProps={{
-                'aria-label': common.togglePasswordVisibility,
+                'aria-label': labels.togglePasswordVisibility,
             }}
             value={field.state.value}
             onBlur={field.handleBlur}

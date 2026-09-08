@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { TranslationValues } from '#/generated/model'
+import type { ZodFieldNames, ZodValidationMessages } from './messages'
 
 /**
  * Global Zod error map that turns Zod's terse defaults ("Invalid input", "Too
@@ -26,22 +26,20 @@ import type { TranslationValues } from '#/generated/model'
  * so they stay translated rather than reverting to English defaults.
  */
 
-type ValidationMessages = TranslationValues['validation']
-type FieldNames = TranslationValues['fields']
-
 // Bridge between the React translation context and Zod's global (module-level) config.
-let messages: ValidationMessages | null = null
-let fieldNames: FieldNames | null = null
+let messages: ZodValidationMessages | null = null
+let fieldNames: ZodFieldNames | null = null
 
 /**
  * Publish the current language's validation strings + field names to the global
  * error map. Pass `null` to clear (e.g. before translations have loaded).
  */
 export function setZodValidationMessages(
-  translations: TranslationValues | null,
+  next: ZodValidationMessages | null,
+  fields?: ZodFieldNames | null,
 ): void {
-  messages = translations?.validation ?? null
-  fieldNames = translations?.fields ?? null
+  messages = next
+  fieldNames = fields ?? null
 }
 
 const zodLocaleFactories: Record<
@@ -154,7 +152,13 @@ const customError: z.core.$ZodErrorMap = (issue) => {
   }
 }
 
-// Install once at import time. `z.config` merges, so a later `setZodValidationLocale`
-// adds `localeError` without clearing this `customError`. Default to the English
-// locale until the app language is known.
-z.config({ customError, localeError: z.locales.en().localeError })
+/**
+ * Register the error map on Zod's global config. Call once during app start-up, before any
+ * generated schema is parsed.
+ *
+ * `z.config` merges, so a later `setZodValidationLocale` adds `localeError` without
+ * clearing this `customError`. Defaults to the English locale until the app language is known.
+ */
+export function installZodErrorMap(): void {
+  z.config({ customError, localeError: z.locales.en().localeError })
+}

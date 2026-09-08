@@ -1,0 +1,59 @@
+{
+  "name": "@collana-solutions/blueprint-i18n",
+  "version": "0.0.0",
+  "description": "Typed translation kit for CSAG Blueprint applications: context factory, client cache and ETag helpers, and an empty-translations recovery guard",
+  "keywords": [
+    "i18n",
+    "translations",
+    "react",
+    "csag-blueprint"
+  ],
+  "license": "MIT",
+  "author": "collana solutions AG",
+  "homepage": "https://github.com/neolution-ch/csag-blueprint-react/tree/main/packages/blueprint-i18n#readme",
+  "bugs": {
+    "url": "https://github.com/neolution-ch/csag-blueprint-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neolution-ch/csag-blueprint-react.git",
+    "directory": "packages/blueprint-i18n"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm run build"
+  },
+  "peerDependencies": {
+    "@mantine/core": "^9.0.0",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@mantine/core": "^9.5.2",
+    "react": "^19.2.8"
+  }
+}

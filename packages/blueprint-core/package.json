@@ -1,0 +1,57 @@
+{
+  "name": "@collana-solutions/blueprint-core",
+  "version": "0.0.0",
+  "description": "RFC 9457 ProblemDetails vocabulary and FastEndpoints validation-error parsing for CSAG Blueprint applications",
+  "keywords": [
+    "problem-details",
+    "rfc9457",
+    "fastendpoints",
+    "csag-blueprint"
+  ],
+  "license": "MIT",
+  "author": "collana solutions AG",
+  "homepage": "https://github.com/neolution-ch/csag-blueprint-react/tree/main/packages/blueprint-core#readme",
+  "bugs": {
+    "url": "https://github.com/neolution-ch/csag-blueprint-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neolution-ch/csag-blueprint-react.git",
+    "directory": "packages/blueprint-core"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm run build"
+  },
+  "peerDependencies": {
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "axios": "^1.19.0"
+  }
+}

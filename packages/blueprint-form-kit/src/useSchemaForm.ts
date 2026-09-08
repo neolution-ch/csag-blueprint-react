@@ -5,8 +5,9 @@ import { modals } from '@mantine/modals'
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useAppForm } from './useAppForm'
-import { parseServerErrors } from './parseServerErrors'
-import { useT } from '#/translations'
+import { parseServerErrors } from '@collana-solutions/blueprint-core'
+import { useFormKitLabels } from './labels'
+import { isDevMode } from './dev-mode'
 
 /**
  * Check whether any `onServer` errors exist — either at the form level
@@ -217,8 +218,7 @@ export function useSchemaForm<TSchema extends z.ZodType>({
 }: UseSchemaFormOptions<TSchema>) {
   // Captured at the top level of the hook so the strings are available inside
   // the (non-component) unsaved-changes modal callback below.
-  const { common } = useT()
-  const t = common.unsavedChanges
+  const t = useFormKitLabels().unsavedChanges
 
   const emptyDefaults = getEmptyDefaults(schema)
   const coercedSchema = withEmptyStringCoercion(schema)
@@ -346,7 +346,7 @@ export function useSchemaForm<TSchema extends z.ZodType>({
         const el = document.getElementById(firstErrorKey)
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        } else if (import.meta.env.DEV) {
+        } else if (isDevMode()) {
           // Field has errors but no DOM element — likely a schema field with no
           // corresponding <AppField> in the UI. Warn the developer so they can
           // either add the field or .omit() it from the schema.

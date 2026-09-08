@@ -1,14 +1,18 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import {
+  installZodErrorMap,
   setZodValidationLocale,
   setZodValidationMessages,
-} from '#/zod-error-map'
-import type { TranslationValues } from '#/generated/model'
+} from '../error-map'
+import type { ZodFieldNames, ZodValidationMessages } from '../messages'
 
-// Minimal stand-in for the parts of TranslationValues the error map reads. Values
-// mirror the real English templates from TranslationDefaults.Validation / .Fields.
-const translations = {
+// Minimal stand-in for the strings the error map reads. Values mirror the real English
+// templates from TranslationDefaults.Validation / .Fields.
+const translations: {
+  validation: ZodValidationMessages & Record<string, string>
+  fields: ZodFieldNames
+} = {
   validation: {
     fieldRequired: '{FieldName} is required',
     minLength: '{FieldName} must be at least {Min} characters',
@@ -27,7 +31,7 @@ const translations = {
     registrationNumber: 'Registration number',
     columns: 'Columns',
   },
-} as unknown as TranslationValues
+}
 
 /** Parse `input` against `schema` and return the first issue's message. */
 function firstMessage(schema: z.ZodType, input: unknown): string {
@@ -36,9 +40,11 @@ function firstMessage(schema: z.ZodType, input: unknown): string {
   return result.error!.issues[0].message
 }
 
+installZodErrorMap()
+
 describe('zod-error-map', () => {
   beforeEach(() => {
-    setZodValidationMessages(translations)
+    setZodValidationMessages(translations.validation, translations.fields)
     setZodValidationLocale('en-GB')
   })
 

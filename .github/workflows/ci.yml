@@ -1,79 +1,79 @@
 name: CI
 
 on:
-    workflow_dispatch:
-    pull_request:
-        branches:
-            - main
-            - "release/**"
-        types: [opened, synchronize, ready_for_review]
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+    types: [opened, synchronize, ready_for_review]
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    changeset-check:
-        name: Changeset Check
-        if: github.event.pull_request.draft == false
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v7.0.1
-              with:
-                  fetch-depth: 0
+  changeset-check:
+    name: Changeset Check
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v7
-              with:
-                  node-version: 24
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
 
-            # Activates the pnpm version pinned in the root manifest packageManager field.
-            - name: Enable Corepack
-              run: corepack enable
+      # Activates the pnpm version pinned in the root manifest packageManager field.
+      - name: Enable Corepack
+        run: corepack enable
 
-            - name: Install Dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Check for changesets
-              if: github.head_ref != 'changeset-release/main' && !startsWith(github.head_ref, 'changeset-release/release/')
-              run: pnpm exec changeset status --since=origin/${{ github.base_ref }}
+      - name: Check for changesets
+        if: github.head_ref != 'changeset-release/main' && !startsWith(github.head_ref, 'changeset-release/release/')
+        run: pnpm exec changeset status --since=origin/${{ github.base_ref }}
 
-    verify:
-        name: Verify
-        if: github.event.pull_request.draft == false
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v7.0.1
+  verify:
+    name: Verify
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v7
-              with:
-                  node-version: 24
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
 
-            - name: Enable Corepack
-              run: corepack enable
+      - name: Enable Corepack
+        run: corepack enable
 
-            - name: Install Dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Format check
-              run: pnpm run format
+      - name: Format check
+        run: pnpm run format
 
-            - name: Lint
-              run: pnpm run lint
+      - name: Lint
+        run: pnpm run lint
 
-            - name: Typecheck
-              run: pnpm run typecheck
+      - name: Typecheck
+        run: pnpm run typecheck
 
-            - name: Test
-              run: pnpm run test
+      - name: Test
+        run: pnpm run test
 
-            - name: Build
-              run: pnpm run build
+      - name: Build
+        run: pnpm run build
 
-            # Catches a broken exports map or wrong types resolution before it is published,
-            # which is the failure mode a hand-written package manifest produces most often.
-            - name: Validate published package shape
-              run: pnpm run check-exports
+      # Catches a broken exports map or wrong types resolution before it is published,
+      # which is the failure mode a hand-written package manifest produces most often.
+      - name: Validate published package shape
+        run: pnpm run check-exports

@@ -4,8 +4,31 @@ import {
   buildTenantTheme,
   generateShades,
   isValidHexColor,
-} from '../tenantTheme'
-import { theme } from '#/theme'
+} from '../tenant-theme'
+import { DEFAULT_THEME, createTheme, mergeMantineTheme } from '@mantine/core'
+import type { MantineColorsTuple } from '@mantine/core'
+
+/**
+ * Stand-in for a consuming app's theme. Mirrors the shape the package cares about: a
+ * primaryColor naming a tuple that buildTenantTheme is expected to override.
+ */
+const cyan: MantineColorsTuple = [
+  '#e0fbff',
+  '#b3f2ff',
+  '#80e8ff',
+  '#4dddff',
+  '#1ad3ff',
+  '#00c4f0',
+  '#00a3cc',
+  '#007fa3',
+  '#005c7a',
+  '#003a52',
+]
+
+const theme = mergeMantineTheme(
+  DEFAULT_THEME,
+  createTheme({ primaryColor: 'cyan', colors: { cyan } }),
+)
 
 const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i
 
@@ -107,15 +130,15 @@ describe('generateShades', () => {
 
 describe('buildTenantTheme', () => {
   it('returns the base theme unchanged for missing or invalid input', () => {
-    expect(buildTenantTheme(null)).toBe(theme)
-    expect(buildTenantTheme(undefined)).toBe(theme)
-    expect(buildTenantTheme('')).toBe(theme)
-    expect(buildTenantTheme('not-a-colour')).toBe(theme)
-    expect(buildTenantTheme('#12345')).toBe(theme)
+    expect(buildTenantTheme(theme, null)).toBe(theme)
+    expect(buildTenantTheme(theme, undefined)).toBe(theme)
+    expect(buildTenantTheme(theme, '')).toBe(theme)
+    expect(buildTenantTheme(theme, 'not-a-colour')).toBe(theme)
+    expect(buildTenantTheme(theme, '#12345')).toBe(theme)
   })
 
   it('overrides the cyan tuple with the generated shades', () => {
-    const result = buildTenantTheme('#f59e0b')
+    const result = buildTenantTheme(theme, '#f59e0b')
     expect(result).not.toBe(theme)
     expect(result.colors.cyan).toEqual(generateShades('#f59e0b'))
     expect(result.primaryColor).toBe('cyan')

@@ -2,7 +2,7 @@ import { Alert } from '@mantine/core'
 import { AlertTriangle } from 'lucide-react'
 import { useFormContext } from './form-context'
 import { useSelector } from '@tanstack/react-store'
-import { useT } from '#/translations'
+import { useFormKitLabels } from './labels'
 
 /**
  * Renders a banner for form-level server errors (generalErrors from the API).
@@ -20,7 +20,7 @@ import { useT } from '#/translations'
  */
 export default function ServerErrorAlert() {
     const form = useFormContext()
-    const { common } = useT()
+    const labels = useFormKitLabels()
     const onServer = useSelector(form.store, (s) => s.errorMap.onServer) as
         { form?: string; fields?: Record<string, string> } | string | undefined
 
@@ -42,7 +42,7 @@ export default function ServerErrorAlert() {
     return (
         <Alert
             color="red"
-            title={common.serverError}
+            title={labels.serverError}
             icon={<AlertTriangle size={16} />}
         >
             {messages.join(' ')}

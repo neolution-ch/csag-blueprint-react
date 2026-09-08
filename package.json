@@ -7,13 +7,13 @@
     "node": ">=22.11"
   },
   "scripts": {
-    "build": "pnpm -r --filter './packages/*' run build",
-    "typecheck": "pnpm -r --filter './packages/*' run typecheck",
+    "build": "pnpm --filter \"@collana-solutions/*\" run build",
+    "typecheck": "pnpm --filter \"@collana-solutions/*\" run typecheck",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
-    "check-exports": "pnpm -r --filter './packages/*' exec publint && pnpm -r --filter './packages/*' exec attw --pack .",
+    "check-exports": "pnpm --filter \"@collana-solutions/*\" exec publint --strict && pnpm --filter \"@collana-solutions/*\" exec attw --pack . --profile esm-only",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"

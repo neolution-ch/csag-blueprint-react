@@ -5,10 +5,11 @@ declare module 'axios' {
     /**
      * Suppress the toast notification for this request's errors.
      *
-     * **Only applies to direct axios calls** (axios-setup.ts, orval-axios-instance.ts).
+     * **Only applies to direct axios calls** — the global instance configured by
+     * `configureGlobalAxios`, and the one built by `createOrvalAxiosClient`.
      * For React Query hooks, use `meta: { suppressToast: true }` on the
      * `useQuery` / `useMutation` call instead — the QueryCache/MutationCache
-     * `onError` handlers in `root-provider.tsx` read that flag.
+     * `onError` handlers in `createBlueprintQueryClient` read that flag.
      *
      * Direct axios usage:
      * ```ts
@@ -26,9 +27,9 @@ declare module 'axios' {
      * Suppress the automatic `window.location.href = '/auth/login'` redirect
      * on 401 responses for this request.
      *
-     * Used by the bootstrap's current-user check (client/auth.ts), where a 401
-     * simply means "not logged in" and must be handled by the caller instead of
-     * bouncing public routes to the login page.
+     * Used by a bootstrap current-user check, where a 401 simply means "not logged
+     * in" and must be handled by the caller instead of bouncing public routes to
+     * the login page.
      */
     __suppressAuthRedirect?: boolean
   }
@@ -52,3 +53,6 @@ declare module '@tanstack/react-query' {
     }
   }
 }
+
+// Ambient augmentations only; the empty export keeps this a module.
+export {}

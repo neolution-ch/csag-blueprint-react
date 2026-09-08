@@ -1,13 +1,13 @@
 import { Button } from '@mantine/core'
 import type { ButtonProps } from '@mantine/core'
 import { useFormContext } from './form-context'
-import { useT } from '#/translations'
+import { useFormKitLabels } from './labels'
 
 type Props = Omit<ButtonProps, 'type' | 'disabled' | 'loading'>
 
 export default function SubmitButton(props: Props) {
     const form = useFormContext()
-    const { common } = useT()
+    const labels = useFormKitLabels()
     return (
         <form.Subscribe
             selector={(state) => ({
@@ -21,7 +21,7 @@ export default function SubmitButton(props: Props) {
                     loading={isSubmitting || isValidating}
                     {...props}
                 >
-                    {props.children ?? common.submit}
+                    {props.children ?? labels.submit}
                 </Button>
             )}
         />

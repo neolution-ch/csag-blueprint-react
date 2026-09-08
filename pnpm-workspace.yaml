@@ -1,5 +1,5 @@
 packages:
-  - "packages/*"
+  - 'packages/*'
 
 # Dependencies explicitly allowed to run install/build scripts (replaces the old
 # pnpm.onlyBuiltDependencies field in package.json). Everything else is blocked by default.

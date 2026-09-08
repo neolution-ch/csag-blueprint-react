@@ -1,0 +1,64 @@
+{
+  "name": "@collana-solutions/blueprint-zod-kit",
+  "version": "0.0.0",
+  "description": "Zod v4 integration for a .NET backend: Orval stringFormat polyfill and a localized error map driven by the backend validation vocabulary",
+  "keywords": [
+    "zod",
+    "validation",
+    "orval",
+    "fluentvalidation",
+    "csag-blueprint"
+  ],
+  "license": "MIT",
+  "author": "collana solutions AG",
+  "homepage": "https://github.com/neolution-ch/csag-blueprint-react/tree/main/packages/blueprint-zod-kit#readme",
+  "bugs": {
+    "url": "https://github.com/neolution-ch/csag-blueprint-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neolution-ch/csag-blueprint-react.git",
+    "directory": "packages/blueprint-zod-kit"
+  },
+  "type": "module",
+  "sideEffects": [
+    "./dist/install.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./install": {
+      "types": "./dist/install.d.ts",
+      "default": "./dist/install.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm run build"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "zod": "^4.4.3"
+  }
+}

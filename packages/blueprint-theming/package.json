@@ -1,0 +1,60 @@
+{
+  "name": "@collana-solutions/blueprint-theming",
+  "version": "0.0.0",
+  "description": "White-label tenant theming for CSAG Blueprint applications: one brand hex to a full Mantine colour tuple plus matching CSS custom properties",
+  "keywords": [
+    "mantine",
+    "theming",
+    "white-label",
+    "multi-tenant",
+    "csag-blueprint"
+  ],
+  "license": "MIT",
+  "author": "collana solutions AG",
+  "homepage": "https://github.com/neolution-ch/csag-blueprint-react/tree/main/packages/blueprint-theming#readme",
+  "bugs": {
+    "url": "https://github.com/neolution-ch/csag-blueprint-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neolution-ch/csag-blueprint-react.git",
+    "directory": "packages/blueprint-theming"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm run build"
+  },
+  "peerDependencies": {
+    "@mantine/core": "^9.0.0",
+    "@tanstack/react-store": ">=0.11.0 <1"
+  },
+  "devDependencies": {
+    "@mantine/core": "^9.5.2",
+    "@tanstack/react-store": "^0.11.1"
+  }
+}

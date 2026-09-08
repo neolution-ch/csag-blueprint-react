@@ -1,0 +1,80 @@
+{
+  "name": "@collana-solutions/blueprint-form-kit",
+  "version": "0.0.0",
+  "description": "TanStack Form + Mantine + Zod form kit for CSAG Blueprint applications",
+  "keywords": [
+    "react",
+    "mantine",
+    "tanstack-form",
+    "zod",
+    "forms",
+    "csag-blueprint"
+  ],
+  "license": "MIT",
+  "author": "collana solutions AG",
+  "homepage": "https://github.com/neolution-ch/csag-blueprint-react/tree/main/packages/blueprint-form-kit#readme",
+  "bugs": {
+    "url": "https://github.com/neolution-ch/csag-blueprint-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neolution-ch/csag-blueprint-react.git",
+    "directory": "packages/blueprint-form-kit"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@collana-solutions/blueprint-core": "workspace:^"
+  },
+  "peerDependencies": {
+    "@mantine/core": "^9.0.0",
+    "@mantine/dates": "^9.0.0",
+    "@mantine/modals": "^9.0.0",
+    "@tanstack/react-form": "^1.33.0",
+    "@tanstack/react-router": "^1.130.0",
+    "@tanstack/react-store": ">=0.11.0 <1",
+    "dayjs": "^1.11.0",
+    "lucide-react": "^1.0.0",
+    "react": "^19.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@mantine/core": "^9.5.2",
+    "@mantine/dates": "^9.5.2",
+    "@mantine/modals": "^9.5.2",
+    "@tanstack/react-form": "^1.33.5",
+    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-store": "^0.11.1",
+    "dayjs": "^1.11.23",
+    "lucide-react": "^1.34.0",
+    "react": "^19.2.8",
+    "zod": "^4.4.3"
+  }
+}

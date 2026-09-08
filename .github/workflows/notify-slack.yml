@@ -1,20 +1,20 @@
 name: Notify Slack Channel
 
 on:
-    release:
-        types: [published]
+  release:
+    types: [published]
 
 jobs:
-    notify:
-        runs-on: ubuntu-latest
-        # Every package is in one fixed group, so a single version train publishes one
-        # GitHub Release per package and would otherwise announce the same release N times.
-        # blueprint-core is the foundation package and its version is the version of the
-        # whole train, so announce that one only.
-        if: startsWith(github.event.release.tag_name, '@collana-solutions/blueprint-core@')
-        steps:
-            - name: Notify Slack
-              uses: neolution-ch/action-release-notifier@v1
-              with:
-                  slack-token: ${{ secrets.SLACK_RELEASE_NOTIFIER_TOKEN }}
-                  slack-channel-ids: ${{ vars.SLACK_CHANNEL_ID_RELEASE_ANNOUNCEMENTS }}
+  notify:
+    runs-on: ubuntu-latest
+    # Every package is in one fixed group, so a single version train publishes one
+    # GitHub Release per package and would otherwise announce the same release N times.
+    # blueprint-core is the foundation package and its version is the version of the
+    # whole train, so announce that one only.
+    if: startsWith(github.event.release.tag_name, '@collana-solutions/blueprint-core@')
+    steps:
+      - name: Notify Slack
+        uses: neolution-ch/action-release-notifier@v1
+        with:
+          slack-token: ${{ secrets.SLACK_RELEASE_NOTIFIER_TOKEN }}
+          slack-channel-ids: ${{ vars.SLACK_CHANNEL_ID_RELEASE_ANNOUNCEMENTS }}
