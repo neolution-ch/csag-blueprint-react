@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* tsdown emits the .js and .d.ts; tsc is used for type-checking only. */
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    /* Linting */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  }
+}

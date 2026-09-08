@@ -1,0 +1,53 @@
+name: Refresh lockfiles
+
+# Dependabot only bumps direct dependencies, and pnpm-workspace.yaml holds transitives back
+# behind a 14-day minimumReleaseAge floor. Without a periodic full re-resolve the lockfile
+# ossifies and never picks up patched transitive versions.
+on:
+    workflow_dispatch:
+    schedule:
+        # 04:00 UTC on the first day of each month.
+        - cron: "0 4 1 * *"
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    refresh:
+        name: Refresh pnpm lockfile
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7.0.1
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            # Delete and reinstall so the lockfile is fully re-resolved to the newest
+            # versions the semver ranges allow. pnpm always picks the highest match, so a
+            # plain install would not move anything already recorded.
+            - name: Refresh pnpm lockfile
+              run: |
+                  rm -f pnpm-lock.yaml
+                  pnpm install --no-frozen-lockfile
+
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v8
+              with:
+                  token: ${{ secrets.LOCKFILE_REFRESH_TOKEN || secrets.GITHUB_TOKEN }}
+                  branch: chore/refresh-lockfiles
+                  title: "chore: refresh lockfiles (transitive dependency update)"
+                  commit-message: "chore: refresh lockfiles"
+                  body: |
+                      Regenerates `pnpm-lock.yaml` so transitive dependencies pick up the
+                      newest versions allowed by the ranges already in the manifests.
+
+                      No manifest is edited, so no changeset is required: nothing here can
+                      change a published package version.
+                  labels: dependencies

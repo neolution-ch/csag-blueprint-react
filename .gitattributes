@@ -1,0 +1,13 @@
+# Normalize line endings to LF in the repository (index), but respect core.autocrlf on checkout.
+# Windows developers with autocrlf=true will get CRLF locally.
+* text=auto
+
+# Explicitly mark solution files as text for normalization
+*.slnx text
+
+# Windows batch scripts: normalize to LF in repo, but allow CRLF checkout on Windows
+*.{bat,cmd} text
+
+# Shell scripts must always be LF (even on Windows checkouts) so they run under bash on
+# macOS/Linux/CI without CRLF issues.
+*.sh text eol=lf

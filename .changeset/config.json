@@ -1,0 +1,23 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.0/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "neolution-ch/csag-blueprint-react" }
+  ],
+  "commit": false,
+  "fixed": [
+    [
+      "@collana-solutions/blueprint-core",
+      "@collana-solutions/blueprint-i18n",
+      "@collana-solutions/blueprint-zod-kit",
+      "@collana-solutions/blueprint-theming",
+      "@collana-solutions/blueprint-form-kit",
+      "@collana-solutions/blueprint-api-kit"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
