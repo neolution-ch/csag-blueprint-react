@@ -1,12 +1,21 @@
 name: PKG PR New
 
+# Publishes an installable preview build of each package per commit, so the blueprint app
+# can be pointed at a branch and validated end to end before anything is released to a
+# permanently version-burned npm version.
+#
+# PARKED: this needs the pkg.pr.new GitHub App installed on the repository. Without it the
+# publish step fails with `There is no workflow defined for <id>` (HTTP 404). Install it at
+# https://github.com/apps/pkg-pr-new and then restore the triggers below to:
+#
+#   on:
+#     workflow_dispatch:
+#     pull_request:
+#       types: [opened, synchronize, ready_for_review]
+#     push:
+#       branches: [main]
 on:
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, ready_for_review]
-  push:
-    branches:
-      - main
 
 jobs:
   build:

@@ -58,6 +58,13 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      # Build first, and in topological order. blueprint-form-kit and blueprint-api-kit
+      # resolve blueprint-core through its `types` entry, which points into dist/. On a
+      # fresh checkout that directory does not exist, so type-aware lint and tsc cannot
+      # resolve the workspace dependency until it has been built once.
+      - name: Build
+        run: pnpm run build
+
       - name: Format check
         run: pnpm run format
 
@@ -69,9 +76,6 @@ jobs:
 
       - name: Test
         run: pnpm run test
-
-      - name: Build
-        run: pnpm run build
 
       # Catches a broken exports map or wrong types resolution before it is published,
       # which is the failure mode a hand-written package manifest produces most often.
