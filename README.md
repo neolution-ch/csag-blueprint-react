@@ -68,6 +68,28 @@ Follows the [neolution-ch release playbook](https://github.com/neolution-ch/rele
 Dependabot PRs get a changeset generated automatically. A **manual** dependency bump does not —
 add one yourself.
 
+## Setup still outstanding
+
+Nothing can be published until these are done. Listed here rather than in an issue so the
+next person to touch the release pipeline sees them.
+
+| What                                         | Why it blocks                                                                                                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create the `NPM_TOKEN` secret                | A granular npm token scoped to `@collana-solutions`, read/write. The Release job currently runs with an empty `NODE_AUTH_TOKEN`, which is harmless only while changesets are still pending. |
+| Make the repository public                   | The blueprint app's docs deep-link into these files at their release tags, the way `docs/security/CSRF.md` already does for the NuGet sibling.                                              |
+| Branch protection on `main` and `release/**` | Require the **Changeset Check** and **Verify** status checks. They only become selectable once CI has run, which it now has.                                                                |
+| Add `CHANGESETS_BOT_*` as Dependabot secrets | Dependabot has a secret store separate from Actions, and cannot read Actions secrets.                                                                                                       |
+| Install the pkg.pr.new GitHub App            | `.github/workflows/pkg.pr.new.yml` is parked behind `workflow_dispatch` until then; it fails with a 404 without the App. The file carries the triggers to restore.                          |
+
+Two known holds:
+
+- **TypeScript stays on 6.x.** `typescript-eslint` refuses to load under TS 7 ("typescript-eslint
+  does not support TS 7.0"), so a major bump turns Lint red while type-checking itself passes.
+  Major updates for `typescript` are ignored in `.github/dependabot.yml` until that lands.
+- **`prettier --check` fails on a Windows checkout.** The repo normalizes to LF, `.editorconfig`
+  sets `end_of_line = lf`, and a CRLF working tree fails every file. CI runs on Linux and is
+  unaffected. Use `pnpm exec prettier --check . --end-of-line auto` locally.
+
 ## Divergences from the org standard
 
 Deliberate, and listed so they are not mistaken for drift.
