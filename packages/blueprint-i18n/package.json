@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-i18n",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Typed translation kit for CSAG Blueprint applications: context factory, client cache and ETag helpers, and an empty-translations recovery guard",
   "keywords": [
     "i18n",
