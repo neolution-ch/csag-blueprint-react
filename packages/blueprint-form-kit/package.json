@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-form-kit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "TanStack Form + Mantine + Zod form kit for CSAG Blueprint applications",
   "keywords": [
     "react",

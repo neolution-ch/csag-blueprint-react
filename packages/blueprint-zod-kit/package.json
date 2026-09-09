@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-zod-kit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Zod v4 integration for a .NET backend: Orval stringFormat polyfill and a localized error map driven by the backend validation vocabulary",
   "keywords": [
     "zod",

@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-theming",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "White-label tenant theming for CSAG Blueprint applications: one brand hex to a full Mantine colour tuple plus matching CSS custom properties",
   "keywords": [
     "mantine",
