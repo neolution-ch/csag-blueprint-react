@@ -33,7 +33,7 @@
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "publint": "^0.3.16",
-    "tsdown": "^0.16.5",
+    "tsdown": "^0.22.14",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
   }

@@ -34,6 +34,12 @@ updates:
     # Keeps Dependabot from needlessly narrowing peer and dependency ranges, which
     # matters for a library where a wide range is the point.
     versioning-strategy: increase-if-necessary
+    ignore:
+      # typescript-eslint refuses to load under TypeScript 7 ("typescript-eslint does not
+      # support TS 7.0"), so a major bump here turns the Lint step red while every other
+      # check stays green. Drop this once typescript-eslint ships TS 7 support.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     groups:
       npm-ecosystem:
         patterns:
