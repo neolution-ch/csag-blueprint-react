@@ -70,6 +70,14 @@ jobs:
           publish-script: pnpm exec changeset publish ${{ steps.publish-config.outputs.tag }}
           pr-title: 'chore: version packages'
           commit-message: 'chore: version packages'
+          # Push the version commit with the Git CLI rather than the GitHub API.
+          # The API path (the action's default) fails here while creating or updating the
+          # version branch: it issues a delete-a-reference call that comes back
+          # "Reference does not exist" and aborts the run, both against an existing
+          # version branch and against a freshly deleted one. The Git CLI path does the
+          # same work without the ref juggling. The trade-off is that the version commit
+          # is no longer signed with GitHub's GPG key.
+          push-with-git-cli: true
         env:
           # GITHUB_TOKEN only authenticates against GitHub Packages. Publishing to the
           # public registry needs an npm token scoped to @collana-solutions.
