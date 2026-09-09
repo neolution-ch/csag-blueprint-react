@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-api-kit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Axios and TanStack Query plumbing for an ASP.NET backend: Problem Details error notifications, a preconfigured QueryClient, and Orval client factories",
   "keywords": [
     "axios",
