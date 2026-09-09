@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "RFC 9457 ProblemDetails vocabulary and FastEndpoints validation-error parsing for CSAG Blueprint applications",
   "keywords": [
     "problem-details",
