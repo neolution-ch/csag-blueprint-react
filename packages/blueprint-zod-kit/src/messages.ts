@@ -29,5 +29,21 @@ export interface ZodValidationMessages {
   collectionRequired: string
 }
 
-/** Localized field labels keyed by schema property name, e.g. `{ hourlyRate: 'Stundensatz' }`. */
+/**
+ * Localized field labels keyed by schema property name, e.g. `{ hourlyRate: 'Stundensatz' }`.
+ *
+ * An index signature, so this type alone does not accept a generated **interface**:
+ * TypeScript gives interfaces no implicit index signature, which is why passing one used to
+ * require spreading it into a fresh object at the call site. Prefer {@link ZodFieldNamesOf}
+ * on parameters so a named interface is accepted directly.
+ */
 export type ZodFieldNames = Readonly<Record<string, string | undefined>>
+
+/**
+ * Structural constraint that accepts either a record or a named interface whose properties
+ * are all optional strings — which is the shape a generated API client produces for a
+ * translation group.
+ */
+export type ZodFieldNamesOf<T> = {
+  readonly [K in keyof T]: string | null | undefined
+}

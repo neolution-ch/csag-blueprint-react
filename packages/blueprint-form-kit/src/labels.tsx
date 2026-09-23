@@ -33,17 +33,29 @@ export const defaultFormKitLabels: FormKitLabels = {
     },
 }
 
+/**
+ * Every leaf accepts `null` as well as `undefined`.
+ *
+ * Labels are normally fed straight from a generated API client, and a backend that marks a
+ * translation column nullable produces `string | null` on each of those fields. Without
+ * `null` here every call site has to coerce with `?? undefined` purely to satisfy the
+ * compiler, which reads like a runtime guard but is not one: {@link mergeLabels} has always
+ * discarded anything that is not a string.
+ */
 export type PartialFormKitLabels = {
     [K in keyof FormKitLabels]?: FormKitLabels[K] extends string
-        ? string | undefined
-        : Partial<FormKitLabels[K]>
+        ? string | null | undefined
+        : {
+              [P in keyof FormKitLabels[K]]?:
+                  FormKitLabels[K][P] | null | undefined
+          }
 }
 
 /**
- * Merge one level deep, treating an explicit `undefined` — not just a missing key — as
- * "fall back to the default". Translations are fetched from the API, so a key is
- * legitimately undefined while they load, and without this the string "undefined" would
- * reach the DOM.
+ * Merge one level deep, treating an explicit `undefined` or `null` — not just a missing key
+ * — as "fall back to the default". Translations are fetched from the API, so a key is
+ * legitimately absent while they load, and without this the string "undefined" would reach
+ * the DOM.
  */
 function mergeLabels(partial: PartialFormKitLabels | undefined): FormKitLabels {
     if (!partial) return defaultFormKitLabels

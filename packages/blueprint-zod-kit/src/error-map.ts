@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import type { ZodFieldNames, ZodValidationMessages } from './messages'
+import type {
+  ZodFieldNames,
+  ZodFieldNamesOf,
+  ZodValidationMessages,
+} from './messages'
 
 /**
  * Global Zod error map that turns Zod's terse defaults ("Invalid input", "Too
@@ -33,13 +37,18 @@ let fieldNames: ZodFieldNames | null = null
 /**
  * Publish the current language's validation strings + field names to the global
  * error map. Pass `null` to clear (e.g. before translations have loaded).
+ *
+ * `fields` is generic so a generated **interface** can be passed straight through. An
+ * interface carries no implicit index signature in TypeScript, so a plain
+ * `Record<string, string | undefined>` parameter would reject one and force the caller to
+ * spread it into a fresh object purely to change its declared type.
  */
-export function setZodValidationMessages(
+export function setZodValidationMessages<TFields extends object>(
   next: ZodValidationMessages | null,
-  fields?: ZodFieldNames | null,
+  fields?: ZodFieldNamesOf<TFields> | null,
 ): void {
   messages = next
-  fieldNames = fields ?? null
+  fieldNames = (fields as ZodFieldNames | undefined) ?? null
 }
 
 const zodLocaleFactories: Record<
@@ -84,9 +93,7 @@ function resolveFieldName(path: PropertyKey[] | undefined): string | null {
   if (!path || path.length === 0) return null
   const segment = path[path.length - 1]
   if (typeof segment !== 'string' || segment.length === 0) return null
-  const localized = fieldNames
-    ? (fieldNames as unknown as Record<string, string | undefined>)[segment]
-    : undefined
+  const localized = fieldNames ? fieldNames[segment] : undefined
   return localized ?? humanize(segment)
 }
 

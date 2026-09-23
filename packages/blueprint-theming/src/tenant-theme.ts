@@ -129,32 +129,66 @@ export function buildTenantTheme(
   )
 }
 
+/** Names of the custom properties {@link buildTenantCssVars} writes. */
+export interface TenantCssVarNames {
+  /** Solid accent colour. Default `--accent`. */
+  accent: string
+  /** Accent at medium alpha, for borders and hovers. Default `--accent-muted`. */
+  accentMuted: string
+  /** Accent at low alpha, for fills. Default `--accent-subtle`. */
+  accentSubtle: string
+  /** Composite box-shadow glow. Default `--glow`. */
+  glow: string
+}
+
+const defaultVarNames: TenantCssVarNames = {
+  accent: '--accent',
+  accentMuted: '--accent-muted',
+  accentSubtle: '--accent-subtle',
+  glow: '--glow',
+}
+
+interface BuildTenantCssVarsOptions {
+  /**
+   * Custom property names to emit. Omitted keys keep their default, so a stylesheet that
+   * renames only one variable passes only that one.
+   */
+  varNames?: Partial<TenantCssVarNames>
+}
+
 /**
- * Builds CSS overriding the accent custom properties from `styles.css` with
- * the tenant colour. Uses `html:root` selectors so the overrides win over
- * the stylesheet's `:root` rules for both colour schemes. Returns an empty
- * string when the hex is invalid.
+ * Builds CSS overriding a stylesheet's accent custom properties with the tenant colour.
+ * Uses `html:root` selectors so the overrides win over the stylesheet's own `:root` rules
+ * for both colour schemes. Returns an empty string when the hex is invalid.
+ *
+ * The property names are configurable because they are the one part of this package that has
+ * to agree with a stylesheet it does not own. The defaults match the names the blueprint
+ * app's `styles.css` declares; any other consumer either adopts those or passes its own.
  */
-export function buildTenantCssVars(hex: string): string {
+export function buildTenantCssVars(
+  hex: string,
+  { varNames }: BuildTenantCssVarsOptions = {},
+): string {
   if (!isValidHexColor(hex)) {
     return ''
   }
+  const names = { ...defaultVarNames, ...varNames }
   const shades = generateShades(hex)
   const dark = shades[4]
   const light = shades[6]
   const { r: dr, g: dg, b: db } = hexToRgb(dark)
   const { r: lr, g: lg, b: lb } = hexToRgb(light)
   const lightVars = [
-    `--accent: ${light};`,
-    `--accent-muted: rgba(${lr}, ${lg}, ${lb}, 0.4);`,
-    `--accent-subtle: rgba(${lr}, ${lg}, ${lb}, 0.08);`,
-    `--glow: 0 0 20px rgba(${lr}, ${lg}, ${lb}, 0.1), 0 0 60px rgba(${lr}, ${lg}, ${lb}, 0.04);`,
+    `${names.accent}: ${light};`,
+    `${names.accentMuted}: rgba(${lr}, ${lg}, ${lb}, 0.4);`,
+    `${names.accentSubtle}: rgba(${lr}, ${lg}, ${lb}, 0.08);`,
+    `${names.glow}: 0 0 20px rgba(${lr}, ${lg}, ${lb}, 0.1), 0 0 60px rgba(${lr}, ${lg}, ${lb}, 0.04);`,
   ]
   return `html:root {
-  --accent: ${dark};
-  --accent-muted: rgba(${dr}, ${dg}, ${db}, 0.5);
-  --accent-subtle: rgba(${dr}, ${dg}, ${db}, 0.12);
-  --glow: 0 0 20px rgba(${dr}, ${dg}, ${db}, 0.15), 0 0 60px rgba(${dr}, ${dg}, ${db}, 0.06);
+  ${names.accent}: ${dark};
+  ${names.accentMuted}: rgba(${dr}, ${dg}, ${db}, 0.5);
+  ${names.accentSubtle}: rgba(${dr}, ${dg}, ${db}, 0.12);
+  ${names.glow}: 0 0 20px rgba(${dr}, ${dg}, ${db}, 0.15), 0 0 60px rgba(${dr}, ${dg}, ${db}, 0.06);
 }
 
 html:root[data-mantine-color-scheme='light'] {
