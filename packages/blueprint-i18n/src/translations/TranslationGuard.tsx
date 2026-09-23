@@ -4,15 +4,46 @@ import { clearTranslationCaches } from './clientHelpers'
 
 const RECOVERY_KEY = 'translation_recovery_attempted'
 
+/**
+ * Copy for the guard's own screens.
+ *
+ * Deliberately a prop rather than a lookup through the translation kit: this component only
+ * renders when translations are unusable, so reading its own copy from them would print
+ * `undefined` exactly when it matters. An app that wants these localized must source them
+ * from something that does not depend on the failed payload — a small bundled dictionary
+ * keyed by the browser language, for instance.
+ */
+export interface TranslationGuardLabels {
+    /** Shown while caches are cleared and the page reloads. */
+    recovering: string
+    /** Heading once a reload has already been attempted and failed. */
+    failedTitle: string
+    /** Body text on that same screen. */
+    failedMessage: string
+    /** Label of the manual reload button. */
+    reload: string
+}
+
+const defaultLabels: TranslationGuardLabels = {
+    recovering: 'Loading translations…',
+    failedTitle: 'Something went wrong',
+    failedMessage: 'An unexpected error occurred. Please reload the page.',
+    reload: 'Reload',
+}
+
 interface TranslationGuardProps {
     children: React.ReactNode
     translations: unknown
     /**
-     * Rendered while the guard clears caches and reloads the page. Defaults to
-     * a plain "Loading translations…" message; apps can pass their own loader
-     * (kept as a prop so this package stays free of app imports).
+     * Rendered while the guard clears caches and reloads the page. Takes precedence over
+     * `labels.recovering`; pass it when you want a spinner rather than a line of text.
      */
     recoveringFallback?: React.ReactNode
+    /**
+     * Overrides for the guard's built-in English copy. Omitted keys keep their default, so
+     * passing a partial object is fine.
+     */
+    labels?: Partial<TranslationGuardLabels>
 }
 
 function isTranslationsValid(translations: unknown): boolean {
@@ -57,7 +88,9 @@ export function TranslationGuard({
     translations,
     children,
     recoveringFallback,
+    labels,
 }: TranslationGuardProps) {
+    const text = { ...defaultLabels, ...labels }
     const [state, setState] = useState<'valid' | 'recovering' | 'failed'>(
         () => {
             if (typeof window === 'undefined') return 'valid'
@@ -89,7 +122,7 @@ export function TranslationGuard({
         return (
             recoveringFallback ?? (
                 <Center style={{ minHeight: '100vh' }}>
-                    <Text c="dimmed">Loading translations…</Text>
+                    <Text c="dimmed">{text.recovering}</Text>
                 </Center>
             )
         )
@@ -99,12 +132,12 @@ export function TranslationGuard({
         return (
             <Center style={{ minHeight: '100vh' }}>
                 <Stack align="center" gap="md">
-                    <Title order={3}>Something went wrong</Title>
+                    <Title order={3}>{text.failedTitle}</Title>
                     <Text c="dimmed" ta="center" maw={360}>
-                        An unexpected error occurred. Please reload the page.
+                        {text.failedMessage}
                     </Text>
                     <Button onClick={() => window.location.reload()} mt="sm">
-                        Reload
+                        {text.reload}
                     </Button>
                 </Stack>
             </Center>

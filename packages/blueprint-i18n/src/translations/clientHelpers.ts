@@ -7,10 +7,45 @@ interface ResolveClientTranslationsOptions<T> {
 }
 
 /**
+ * Reads the entry persistTranslations() wrote for a language, or null when it is missing,
+ * unreadable, or not the shape that function writes.
+ *
+ * The shape check is not defensive programming for its own sake. localStorage outlives
+ * deployments, so an entry written by an older version of the app — or truncated by a quota
+ * error part-way through a write — can still be there when newer code reads it. Because
+ * `typeof null === 'object'`, a stored `{"data":null}` previously resolved to `null` and every
+ * caller that dereferenced the result threw during render, before {@link TranslationGuard}
+ * could switch to its recovery state and reload.
+ */
+export function readStoredTranslations<T>(
+  languageCode: string,
+): TranslationsPayload<T> | null {
+  try {
+    const stored = localStorage.getItem(`translations:${languageCode}`)
+    if (!stored) return null
+
+    const parsed: unknown = JSON.parse(stored)
+    if (typeof parsed !== 'object' || parsed === null) return null
+
+    const { data, etag } = parsed as { data?: unknown; etag?: unknown }
+    if (typeof data !== 'object' || data === null) return null
+    if (typeof etag !== 'string') return null
+
+    return { translations: data as T, etag }
+  } catch {
+    // localStorage unavailable, or a corrupt entry — treat as a cache miss
+    return null
+  }
+}
+
+/**
  * Resolves translations on the client with the following priority:
  * 1. Fresh payload from the API
  * 2. localStorage for the correct language
  * 3. Fallback value
+ *
+ * A cached entry that fails validation is treated as absent, so the caller gets its
+ * `fallback` and can recover, rather than a malformed object that throws on first access.
  */
 export function resolveClientTranslations<T>({
   languageCode,
@@ -23,14 +58,9 @@ export function resolveClientTranslations<T>({
   }
 
   // Fallback: try localStorage for the correct language
-  try {
-    const stored = localStorage.getItem(`translations:${languageCode}`)
-    if (stored) {
-      const parsed = JSON.parse(stored) as { data: T }
-      return parsed.data
-    }
-  } catch {
-    // localStorage unavailable — ignore
+  const stored = readStoredTranslations<T>(languageCode)
+  if (stored) {
+    return stored.translations
   }
 
   console.warn(`[translations] No translations available for ${languageCode}`)

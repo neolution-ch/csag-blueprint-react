@@ -41,8 +41,11 @@ The kit renders eight strings of its own. With no provider it uses English defau
 what keeps it working before an app's translations have loaded. To localize them, wrap the
 tree in `FormKitLabelsProvider` and pass your own.
 
-An explicit `undefined` falls back to the default rather than overriding it, so a key that has
-not arrived from the API yet never reaches the DOM as the string `undefined`.
+An explicit `undefined` or `null` falls back to the default rather than overriding it, so a key
+that has not arrived from the API yet never reaches the DOM as the string `undefined`. `null` is
+accepted because a generated client whose backend marks those columns nullable produces
+`string | null`; without it every call site would need a `?? undefined` that looks like a
+runtime guard but only satisfies the compiler.
 
 ## API
 
@@ -57,6 +60,30 @@ not arrived from the API yet never reaches the DOM as the string `undefined`.
 
 Registered fields: `TextInput`, `PasswordInput`, `NumberInput`, `Select`, `MultiSelect`,
 `DateInput`, `DateTimeInput`, `FileInput`, `Checkbox`, `ColorInput`.
+
+The same components are also named exports (`TextInputField`, `SelectField`, and so on) for
+the cases `field.*` cannot serve, such as composing one inside an app-specific field.
+
+### A field this kit does not ship
+
+The registry is fixed: it is built once inside the package, so a consumer cannot add an
+eleventh member or replace one. A field that needs data only your app has — a generated
+endpoint, your own translations — is written as an ordinary component that calls
+`useFieldContext`, and rendered as the body of `form.AppField`:
+
+```tsx
+import { useFieldContext } from '@collana-solutions/blueprint-form-kit'
+
+function UploadField({ label }: { label: string }) {
+    const field = useFieldContext<File | null>()
+    // …render your input, then call field.handleChange(file)
+}
+
+;<form.AppField name="image" children={() => <UploadField label="Image" />} />
+```
+
+`AppField` establishes the same context either way, so validation, blur tracking and error
+display behave exactly as they do for a registered field.
 
 ## License
 
