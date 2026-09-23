@@ -56,7 +56,24 @@ runtime guard but only satisfies the compiler.
 | `FormSkeleton`                                                        | component | Derives a loading skeleton from a Zod object schema.                                                                                                                     |
 | `FormKitLabelsProvider` / `useFormKitLabels` / `defaultFormKitLabels` | —         | The label contract described above.                                                                                                                                      |
 | `parseServerErrors`                                                   | function  | Re-exported from `blueprint-core`, where the axios and query plumbing needs it too.                                                                                      |
+| `setDevMode`                                                          | function  | Declares whether this is a development build. See below.                                                                                                                 |
 | `fieldContext` / `formContext` / `useFieldContext` / `useFormContext` | —         | The underlying TanStack Form contexts.                                                                                                                                   |
+
+### Development diagnostics
+
+`useSchemaForm` warns about orphan field errors in development. Call `setDevMode` once at
+start-up so it knows when that is:
+
+```ts
+setDevMode(import.meta.env.DEV)
+```
+
+It has to come from you. `import.meta.env` is injected by Vite's import-analysis plugin, which
+runs over **app source**; a dependency pre-bundled out of `node_modules` never sees it, so the
+kit's own fallback reads false under `vite dev`. `process.env.NODE_ENV` is not an alternative
+either: this package is built with rolldown's browser platform, which inlines that expression at
+build time and would ship one frozen value to everyone. Without the call the diagnostics simply
+stay quiet, which is also the right behaviour in production.
 
 Registered fields: `TextInput`, `PasswordInput`, `NumberInput`, `Select`, `MultiSelect`,
 `DateInput`, `DateTimeInput`, `FileInput`, `Checkbox`, `ColorInput`.

@@ -1,6 +1,10 @@
 export { useAppForm, withForm } from './useAppForm'
 export { useSchemaForm } from './useSchemaForm'
 export { FormSkeleton } from './FormSkeleton'
+
+// Call once at start-up with `import.meta.env.DEV`. A published package cannot detect a
+// development build on its own; see the note on setDevMode for why.
+export { setDevMode } from './dev-mode'
 export {
   fieldContext,
   useFieldContext,

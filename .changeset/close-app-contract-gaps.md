@@ -23,11 +23,16 @@ a write truncated by a quota error — resolved to `null` and threw at the consu
 property access, before `TranslationGuard` could reload. Validation moved to a new exported
 `readStoredTranslations`, and an entry that fails it is treated as a cache miss.
 
-**Dev-only diagnostics work again inside a bundle.** `isDevMode` read `import.meta.env`, which
-Vite injects into app source but not into a pre-bundled dependency, so every development
-warning in the form kit went silent the moment the kit stopped being vendored app code.
-It now prefers `process.env.NODE_ENV`, which Vite's dependency optimizer does define, and which
-rollup, webpack, esbuild and Jest set too.
+**Dev-only diagnostics can be switched on again.** The form kit decided whether to emit its
+development warnings by reading `import.meta.env.DEV`. Vite injects that into app source but not
+into a dependency it pre-bundles out of `node_modules`, so every diagnostic in the kit — the
+orphan-field warning in `useSchemaForm` most of all — went silent the moment this code stopped
+being vendored app source. Reading `process.env.NODE_ENV` instead does not help: these packages
+are built with rolldown's browser platform, which inlines that expression at build time and would
+freeze one value into the published artifact. A published package genuinely cannot work this out
+for itself, so the new `setDevMode` lets the consumer say. Call it once at start-up with
+`setDevMode(import.meta.env.DEV)`, from your own source where the bundler does substitute. The
+old heuristic remains the default, so consuming the packages as source keeps working unchanged.
 
 **Labels accept `null`.** `PartialFormKitLabels` leaves take `string | null | undefined`.
 A generated client whose backend marks a translation column nullable produces `string | null`,

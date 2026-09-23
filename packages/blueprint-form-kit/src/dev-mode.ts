@@ -1,9 +1,9 @@
 /**
- * Minimal structural declaration of the bundler-injected globals this module reads.
+ * Minimal structural declaration of the bundler-injected `import.meta.env`.
  *
- * Declared here rather than pulled in via `vite/client` or `@types/node` so that consumers
- * are not forced to have either in their type graph. Every field is optional, so a bundler
- * that injects nothing leaves `isDevMode()` false and the dev-only diagnostics stay quiet.
+ * Declared here rather than pulled in via `vite/client` so that consumers are not forced
+ * to have Vite in their type graph. Every field is optional, so a bundler that injects
+ * nothing leaves the heuristic below false and the dev-only diagnostics simply stay quiet.
  */
 declare global {
   interface ImportMeta {
@@ -12,29 +12,43 @@ declare global {
       readonly MODE?: string
     }
   }
+}
 
-  var process: { env?: { NODE_ENV?: string } } | undefined
+let override: boolean | undefined
+
+/**
+ * Tell the kit whether this is a development build.
+ *
+ * Needed because a published package cannot reliably work this out for itself. `import.meta.env`
+ * is injected by Vite's import-analysis plugin, which runs over **app source**; a dependency
+ * resolved from `node_modules` is pre-bundled by the dependency optimizer instead, and that pass
+ * does not define it. So the heuristic below silently reports false under `vite dev` — which is
+ * how every diagnostic in this kit went quiet once it stopped being vendored app code and became
+ * this package.
+ *
+ * Reading `process.env.NODE_ENV` instead does not fix it: this package is built with rolldown's
+ * browser platform, which inlines that expression at **our** build time, freezing whatever value
+ * the release ran with into the published artifact.
+ *
+ * Call this once during start-up from your own source, where the bundler does substitute:
+ *
+ * ```ts
+ * setDevMode(import.meta.env.DEV)
+ * ```
+ *
+ * Pass `undefined` to fall back to the heuristic.
+ */
+export function setDevMode(value: boolean | undefined): void {
+  override = value
 }
 
 /**
- * True when the bundler marked this as a development build.
- *
- * `process.env.NODE_ENV` is checked first because it is the only one of the two that is
- * reliably defined *inside a dependency*. Vite injects `import.meta.env` from its
- * import-analysis plugin, which runs over app source; a package resolved out of node_modules
- * is instead pre-bundled by the dependency optimizer, whose define block sets `NODE_ENV` and
- * nothing else. Reading only `import.meta.env` therefore silenced every diagnostic in this
- * kit under `vite dev` the moment it stopped being vendored app source and became a
- * published dependency — which is exactly how it ships now. Rollup, webpack, esbuild and
- * Jest all define `NODE_ENV` as well, so it is also the more portable signal.
- *
- * `import.meta.env.DEV` stays as a fallback for a bundler that sets it without `NODE_ENV`.
+ * True when the consumer has declared a development build via {@link setDevMode}, or when
+ * `import.meta.env.DEV` is visible — which it is when this code is consumed as source, and in
+ * this repository's own tests.
  */
 export function isDevMode(): boolean {
-  const nodeEnv =
-    typeof process !== 'undefined' ? process.env?.NODE_ENV : undefined
-  if (typeof nodeEnv === 'string') return nodeEnv !== 'production'
-
+  if (typeof override === 'boolean') return override
   return import.meta.env?.DEV === true
 }
 
