@@ -57,7 +57,9 @@ export type PartialFormKitLabels = {
  * legitimately absent while they load, and without this the string "undefined" would reach
  * the DOM.
  */
-function mergeLabels(partial: PartialFormKitLabels | undefined): FormKitLabels {
+export function mergeLabels(
+    partial: PartialFormKitLabels | undefined,
+): FormKitLabels {
     if (!partial) return defaultFormKitLabels
 
     const unsavedChanges = { ...defaultFormKitLabels.unsavedChanges }

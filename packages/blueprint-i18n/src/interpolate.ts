@@ -7,16 +7,22 @@
  * map fills that same syntax, so a translated string that still carries placeholders when it
  * reaches the UI is filled here under identical rules.
  *
- * Substitution is literal rather than pattern-based, and a placeholder with no matching param
- * is left in place: a missing value surfaces as `{Amount}` in the UI instead of `undefined`.
+ * The template is scanned once, so a value is inserted verbatim: braces or `$` sequences inside
+ * it are never read as placeholders or replacement patterns. A `{{key}}` token is the
+ * {@link interpolate} syntax and is left whole rather than half-filled. A placeholder with no
+ * matching param is left in place: a missing value surfaces as `{Amount}` in the UI instead of
+ * `undefined`.
  */
 export function formatMessage(
   template: string,
   values: Record<string, string | number>,
 ): string {
-  return Object.entries(values).reduce(
-    (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
-    template,
+  return template.replace(
+    /\{\{[^{}]*\}\}|\{([^{}]+)\}/g,
+    (match, key: string | undefined) =>
+      key !== undefined && Object.hasOwn(values, key)
+        ? String(values[key])
+        : match,
   )
 }
 

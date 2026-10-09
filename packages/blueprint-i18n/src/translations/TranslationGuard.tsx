@@ -40,8 +40,8 @@ interface TranslationGuardProps {
      */
     recoveringFallback?: React.ReactNode
     /**
-     * Overrides for the guard's built-in English copy. Omitted keys keep their default, so
-     * passing a partial object is fine.
+     * Overrides for the guard's built-in English copy. Omitted or `undefined` keys keep their
+     * default, so passing a partial object is fine.
      */
     labels?: Partial<TranslationGuardLabels>
 }
@@ -90,7 +90,12 @@ export function TranslationGuard({
     recoveringFallback,
     labels,
 }: TranslationGuardProps) {
-    const text = { ...defaultLabels, ...labels }
+    const text: TranslationGuardLabels = {
+        recovering: labels?.recovering ?? defaultLabels.recovering,
+        failedTitle: labels?.failedTitle ?? defaultLabels.failedTitle,
+        failedMessage: labels?.failedMessage ?? defaultLabels.failedMessage,
+        reload: labels?.reload ?? defaultLabels.reload,
+    }
     const [state, setState] = useState<'valid' | 'recovering' | 'failed'>(
         () => {
             if (typeof window === 'undefined') return 'valid'

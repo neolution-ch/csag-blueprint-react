@@ -30,6 +30,28 @@ describe('formatMessage', () => {
   it('coerces numbers', () => {
     expect(formatMessage('{Count}', { Count: 0 })).toBe('0')
   })
+
+  // Mirror of the interpolate case below: a string still in the deprecated syntax comes back
+  // untouched rather than as `{world}`.
+  it('leaves double-brace placeholders alone', () => {
+    expect(formatMessage('Hello {{name}}', { name: 'world' })).toBe(
+      'Hello {{name}}',
+    )
+  })
+
+  it('does not fill placeholders that arrive inside a value', () => {
+    expect(formatMessage('{A} and {B}', { A: '{B}', B: 'b' })).toBe('{B} and b')
+  })
+
+  it('inserts replacement-pattern sequences verbatim', () => {
+    expect(formatMessage('Total: {Amount}', { Amount: "$& $' $$" })).toBe(
+      "Total: $& $' $$",
+    )
+  })
+
+  it('ignores inherited properties of the values object', () => {
+    expect(formatMessage('{toString}', {})).toBe('{toString}')
+  })
 })
 
 describe('interpolate', () => {

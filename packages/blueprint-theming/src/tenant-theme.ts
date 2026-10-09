@@ -150,8 +150,8 @@ const defaultVarNames: TenantCssVarNames = {
 
 interface BuildTenantCssVarsOptions {
   /**
-   * Custom property names to emit. Omitted keys keep their default, so a stylesheet that
-   * renames only one variable passes only that one.
+   * Custom property names to emit. Omitted or `undefined` keys keep their default, so a
+   * stylesheet that renames only one variable passes only that one.
    */
   varNames?: Partial<TenantCssVarNames>
 }
@@ -172,7 +172,12 @@ export function buildTenantCssVars(
   if (!isValidHexColor(hex)) {
     return ''
   }
-  const names = { ...defaultVarNames, ...varNames }
+  const names: TenantCssVarNames = {
+    accent: varNames?.accent ?? defaultVarNames.accent,
+    accentMuted: varNames?.accentMuted ?? defaultVarNames.accentMuted,
+    accentSubtle: varNames?.accentSubtle ?? defaultVarNames.accentSubtle,
+    glow: varNames?.glow ?? defaultVarNames.glow,
+  }
   const shades = generateShades(hex)
   const dark = shades[4]
   const light = shades[6]
