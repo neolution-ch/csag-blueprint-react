@@ -14,7 +14,61 @@ import {
     toProblemDetails,
 } from '@collana-solutions/blueprint-core'
 
-const ERROR_TITLE = 'Something went wrong'
+/** Every user-visible string the error toast renders. */
+export interface ErrorNotificationLabels {
+    /** Toast title. */
+    title: string
+    /** Body used when the server sent no usable detail. */
+    genericMessage: string
+    /** Prefix for the trace identifier, in the body and in the copied text. */
+    traceIdLabel: string
+    /** Label and aria-label of the copy control. */
+    copy: string
+    /** Tooltip shown for a moment after copying. */
+    copied: string
+}
+
+const defaultLabels: ErrorNotificationLabels = {
+    title: 'Something went wrong',
+    genericMessage: 'Please try again.',
+    traceIdLabel: 'Trace ID',
+    copy: 'Copy error details',
+    copied: 'Copied',
+}
+
+let labels: ErrorNotificationLabels = defaultLabels
+
+/**
+ * Override the toast's copy, or pass `null` to restore the English defaults.
+ *
+ * A module-level setter rather than a parameter because the toast is raised from axios
+ * interceptors and from the query client's cache handlers, none of which sit inside the React
+ * tree that holds the translations. The app calls this when its resolved language changes,
+ * the same bridge `setZodValidationMessages` uses in the zod kit.
+ *
+ * Partial objects are accepted, and a `null` or non-string leaf keeps that default, so
+ * feeding it straight from a translation payload that has not loaded yet is safe.
+ */
+export function setErrorNotificationLabels(
+    next:
+        | {
+              [K in keyof ErrorNotificationLabels]?: string | null | undefined
+          }
+        | null,
+): void {
+    if (!next) {
+        labels = defaultLabels
+        return
+    }
+
+    const merged = { ...defaultLabels }
+    for (const [key, value] of Object.entries(next)) {
+        if (typeof value === 'string' && value.length > 0) {
+            merged[key as keyof ErrorNotificationLabels] = value
+        }
+    }
+    labels = merged
+}
 
 function buildClipboardText(problem: {
     title?: string
@@ -27,7 +81,8 @@ function buildClipboardText(problem: {
     if (problem.title) lines.push(`Title: ${problem.title}`)
     if (problem.status) lines.push(`Status: ${problem.status}`)
     if (problem.detail) lines.push(`Detail: ${problem.detail}`)
-    if (problem.traceId) lines.push(`Trace ID: ${problem.traceId}`)
+    if (problem.traceId)
+        lines.push(`${labels.traceIdLabel}: ${problem.traceId}`)
     if (problem.exception) lines.push(`\nException:\n${problem.exception}`)
     return lines.join('\n')
 }
@@ -58,7 +113,7 @@ export function showErrorNotification(error: unknown) {
         problem = error
     }
 
-    const title = ERROR_TITLE
+    const title = labels.title
     // Only surface server-provided detail when a real HTTP response came back.
     // Network errors and locally-thrown JS errors fall back to a generic message
     // so internal exception strings never reach the user.
@@ -71,14 +126,10 @@ export function showErrorNotification(error: unknown) {
             ? problem.traceId
             : undefined
 
-    let messageText: string
-    if (detail) {
-        messageText = traceId ? `${detail}\nTrace ID: ${traceId}` : detail
-    } else {
-        messageText = traceId
-            ? `Please try again.\nTrace ID: ${traceId}`
-            : 'Please try again.'
-    }
+    const body = detail ?? labels.genericMessage
+    const messageText = traceId
+        ? `${body}\n${labels.traceIdLabel}: ${traceId}`
+        : body
 
     const clipboardText = problem ? buildClipboardText(problem) : undefined
 
@@ -94,16 +145,14 @@ export function showErrorNotification(error: unknown) {
                         <CopyButton value={clipboardText}>
                             {({ copied, copy }) => (
                                 <Tooltip
-                                    label={
-                                        copied ? 'Copied' : 'Copy error details'
-                                    }
+                                    label={copied ? labels.copied : labels.copy}
                                 >
                                     <ActionIcon
                                         variant="subtle"
                                         color={copied ? 'teal' : 'gray'}
                                         onClick={copy}
                                         size="sm"
-                                        aria-label="Copy error details"
+                                        aria-label={labels.copy}
                                     >
                                         {copied ? (
                                             <Check size={14} />
@@ -115,7 +164,7 @@ export function showErrorNotification(error: unknown) {
                             )}
                         </CopyButton>
                         <Text size="xs" c="dimmed">
-                            Copy error details
+                            {labels.copy}
                         </Text>
                     </Group>
                 )}

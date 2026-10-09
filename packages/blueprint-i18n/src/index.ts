@@ -1,4 +1,4 @@
-export { interpolate } from './interpolate'
+export { formatMessage, interpolate } from './interpolate'
 
 // Translations
 export {
@@ -11,12 +11,14 @@ export {
 
   // Client helpers
   resolveClientTranslations,
+  readStoredTranslations,
   persistTranslations,
   clearTranslationCaches,
   getPersistedTranslationsLanguage,
 
   // Components
   TranslationGuard,
+  type TranslationGuardLabels,
 
   // Debug
   translationKeysToDebugObject,

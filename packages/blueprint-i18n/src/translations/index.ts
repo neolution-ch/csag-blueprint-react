@@ -7,13 +7,17 @@ export { createTranslationKit } from './createTranslationKit'
 // Client helpers
 export {
   resolveClientTranslations,
+  readStoredTranslations,
   persistTranslations,
   clearTranslationCaches,
   getPersistedTranslationsLanguage,
 } from './clientHelpers'
 
 // Components
-export { TranslationGuard } from './TranslationGuard'
+export {
+  TranslationGuard,
+  type TranslationGuardLabels,
+} from './TranslationGuard'
 
 // Debug
 export { translationKeysToDebugObject } from './translationKeysToDebugObject'

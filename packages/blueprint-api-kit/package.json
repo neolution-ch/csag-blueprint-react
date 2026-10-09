@@ -54,7 +54,7 @@
     "prepack": "pnpm run build"
   },
   "dependencies": {
-    "@collana-solutions/blueprint-core": "workspace:^"
+    "@collana-solutions/blueprint-core": "workspace:*"
   },
   "peerDependencies": {
     "@mantine/core": "^9.0.0",
