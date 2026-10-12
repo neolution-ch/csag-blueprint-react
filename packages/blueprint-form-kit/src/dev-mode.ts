@@ -1,16 +1,15 @@
 /**
- * Minimal structural declaration of the bundler-injected `import.meta.env`.
+ * Minimal structural view of the bundler-injected `import.meta.env`.
  *
- * Declared here rather than pulled in via `vite/client` so that consumers are not forced
- * to have Vite in their type graph. Every field is optional, so a bundler that injects
- * nothing leaves the heuristic below false and the dev-only diagnostics simply stay quiet.
+ * A local type rather than a global `ImportMeta` augmentation: this module is part of the
+ * published declarations, and `vite/client` declares `env` as required, so a global
+ * redeclaration here would conflict in exactly the Vite apps that call {@link setDevMode}.
+ * Every field is optional, so a bundler that injects nothing leaves the heuristic below false
+ * and the dev-only diagnostics simply stay quiet.
  */
-declare global {
-  interface ImportMeta {
-    readonly env?: {
-      readonly DEV?: boolean
-      readonly MODE?: string
-    }
+export interface BundlerImportMeta {
+  readonly env?: {
+    readonly DEV?: boolean
   }
 }
 
@@ -49,7 +48,5 @@ export function setDevMode(value: boolean | undefined): void {
  */
 export function isDevMode(): boolean {
   if (typeof override === 'boolean') return override
-  return import.meta.env?.DEV === true
+  return (import.meta as BundlerImportMeta).env?.DEV === true
 }
-
-export {}

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { isDevMode, setDevMode } from '../dev-mode'
+import type { BundlerImportMeta } from '../dev-mode'
 
 afterEach(() => {
   setDevMode(undefined)
@@ -22,6 +23,8 @@ describe('setDevMode', () => {
     setDevMode(true)
     setDevMode(undefined)
     // Vitest sets import.meta.env.DEV, so the heuristic is observable here.
-    expect(isDevMode()).toBe(import.meta.env?.DEV === true)
+    expect(isDevMode()).toBe(
+      (import.meta as BundlerImportMeta).env?.DEV === true,
+    )
   })
 })

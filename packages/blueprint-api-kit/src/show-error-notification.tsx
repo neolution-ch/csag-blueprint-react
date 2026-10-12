@@ -70,19 +70,21 @@ export function setErrorNotificationLabels(
     labels = merged
 }
 
-function buildClipboardText(problem: {
-    title?: string
-    status?: number
-    detail?: string | null
-    traceId?: string
-    exception?: string
-}): string {
+function buildClipboardText(
+    text: ErrorNotificationLabels,
+    problem: {
+        title?: string
+        status?: number
+        detail?: string | null
+        traceId?: string
+        exception?: string
+    },
+): string {
     const lines: string[] = []
     if (problem.title) lines.push(`Title: ${problem.title}`)
     if (problem.status) lines.push(`Status: ${problem.status}`)
     if (problem.detail) lines.push(`Detail: ${problem.detail}`)
-    if (problem.traceId)
-        lines.push(`${labels.traceIdLabel}: ${problem.traceId}`)
+    if (problem.traceId) lines.push(`${text.traceIdLabel}: ${problem.traceId}`)
     if (problem.exception) lines.push(`\nException:\n${problem.exception}`)
     return lines.join('\n')
 }
@@ -97,6 +99,10 @@ function buildClipboardText(problem: {
 export function showErrorNotification(error: unknown) {
     // Non-browser guard (e.g. unit tests) — Mantine notifications require the DOM.
     if (typeof window === 'undefined') return
+
+    // Captured once so that a language change while the toast is open cannot mix languages:
+    // the CopyButton render prop below runs again on every copy, long after this call returns.
+    const text = labels
 
     // Resolve a ProblemDetails from whatever error shape we receive:
     // 1. AxiosError with response.data as ProblemDetails (from interceptors)
@@ -113,7 +119,7 @@ export function showErrorNotification(error: unknown) {
         problem = error
     }
 
-    const title = labels.title
+    const title = text.title
     // Only surface server-provided detail when a real HTTP response came back.
     // Network errors and locally-thrown JS errors fall back to a generic message
     // so internal exception strings never reach the user.
@@ -126,12 +132,14 @@ export function showErrorNotification(error: unknown) {
             ? problem.traceId
             : undefined
 
-    const body = detail ?? labels.genericMessage
+    const body = detail ?? text.genericMessage
     const messageText = traceId
-        ? `${body}\n${labels.traceIdLabel}: ${traceId}`
+        ? `${body}\n${text.traceIdLabel}: ${traceId}`
         : body
 
-    const clipboardText = problem ? buildClipboardText(problem) : undefined
+    const clipboardText = problem
+        ? buildClipboardText(text, problem)
+        : undefined
 
     notifications.show({
         title,
@@ -145,14 +153,14 @@ export function showErrorNotification(error: unknown) {
                         <CopyButton value={clipboardText}>
                             {({ copied, copy }) => (
                                 <Tooltip
-                                    label={copied ? labels.copied : labels.copy}
+                                    label={copied ? text.copied : text.copy}
                                 >
                                     <ActionIcon
                                         variant="subtle"
                                         color={copied ? 'teal' : 'gray'}
                                         onClick={copy}
                                         size="sm"
-                                        aria-label={labels.copy}
+                                        aria-label={text.copy}
                                     >
                                         {copied ? (
                                             <Check size={14} />
@@ -164,7 +172,7 @@ export function showErrorNotification(error: unknown) {
                             )}
                         </CopyButton>
                         <Text size="xs" c="dimmed">
-                            {labels.copy}
+                            {text.copy}
                         </Text>
                     </Group>
                 )}
