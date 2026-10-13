@@ -63,7 +63,7 @@ importers:
   packages/blueprint-api-kit:
     dependencies:
       '@collana-solutions/blueprint-core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../blueprint-core
     devDependencies:
       '@mantine/core':
@@ -97,7 +97,7 @@ importers:
   packages/blueprint-form-kit:
     dependencies:
       '@collana-solutions/blueprint-core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../blueprint-core
     devDependencies:
       '@mantine/core':

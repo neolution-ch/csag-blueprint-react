@@ -1,3 +1,4 @@
+export type { TenantCssVarNames } from './tenant-theme'
 export {
   isValidHexColor,
   generateShades,

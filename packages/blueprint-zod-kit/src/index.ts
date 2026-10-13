@@ -1,4 +1,8 @@
-export type { ZodFieldNames, ZodValidationMessages } from './messages'
+export type {
+  ZodFieldNames,
+  ZodFieldNamesOf,
+  ZodValidationMessages,
+} from './messages'
 
 export { applyStringFormatPatch } from './string-format-patch'
 export {

@@ -180,4 +180,16 @@ describe('buildTenantCssVars', () => {
       `--glow: 0 0 20px rgba(${lightRgb}, 0.1), 0 0 60px rgba(${lightRgb}, 0.04);`,
     )
   })
+
+  it('renames only the variables passed in varNames', () => {
+    const css = buildTenantCssVars('#f59e0b', {
+      varNames: { accent: '--brand', glow: undefined },
+    })
+    expect(css).toContain('--brand: ')
+    expect(css).not.toContain('--accent: ')
+    expect(css).toContain('--accent-muted: ')
+    expect(css).toContain('--accent-subtle: ')
+    expect(css).toContain('--glow: ')
+    expect(css).not.toContain('undefined')
+  })
 })

@@ -4,7 +4,11 @@ import './augmentations'
 
 export type { BlueprintAxiosOptions } from './options'
 
-export { showErrorNotification } from './show-error-notification'
+export type { ErrorNotificationLabels } from './show-error-notification'
+export {
+  showErrorNotification,
+  setErrorNotificationLabels,
+} from './show-error-notification'
 
 export type { BlueprintQueryClientOptions } from './create-query-client'
 export { createBlueprintQueryClient } from './create-query-client'
