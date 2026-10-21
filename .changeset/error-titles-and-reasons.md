@@ -27,3 +27,10 @@ array. The copied error details include those reasons. A 4xx toast is titled wit
 
 The reason extraction is exported from `blueprint-core` as `collectErrorReasons`, for an app that
 builds its own messages from a Problem Details body.
+
+**Type change for code that spells out every label.** `FormKitLabels` and `ErrorNotificationLabels`
+describe the resolved labels, so they gain the required members `requestRejected` and
+`rejectedTitle`. The inputs are unaffected: `FormKitLabelsProvider` takes `PartialFormKitLabels` and
+`setErrorNotificationLabels` takes a partial object. Code that annotates a complete object with
+either interface must add the new member (for form-kit labels, spreading `defaultFormKitLabels`
+first also works).
