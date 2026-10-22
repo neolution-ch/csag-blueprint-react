@@ -13,6 +13,7 @@ describe('mergeLabels', () => {
     const merged = mergeLabels({
       submit: null,
       serverError: undefined,
+      requestRejected: null,
       validationErrors: 'Fix these',
       unsavedChanges: {
         title: null,
@@ -45,14 +46,17 @@ describe('defaultFormKitLabels', () => {
     const { unsavedChanges, ...flat } = defaultFormKitLabels
     const leaves = [...Object.values(flat), ...Object.values(unsavedChanges)]
 
-    // Eight strings today: four top-level plus the four-key unsavedChanges group.
-    expect(leaves).toHaveLength(8)
+    // Nine strings today: five top-level plus the four-key unsavedChanges group.
+    expect(leaves).toHaveLength(9)
     for (const leaf of leaves) {
       expect(leaf).toBeTypeOf('string')
       expect(leaf.length).toBeGreaterThan(0)
     }
 
     expect(defaultFormKitLabels.submit).toBe('Submit')
+    expect(defaultFormKitLabels.requestRejected).toBe(
+      'Could not complete the request',
+    )
     expect(defaultFormKitLabels.unsavedChanges.title).toBe('Unsaved changes')
   })
 })

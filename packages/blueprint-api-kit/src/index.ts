@@ -4,7 +4,7 @@ import './augmentations'
 
 export type { BlueprintAxiosOptions } from './options'
 
-export type { ErrorNotificationLabels } from './show-error-notification'
+export type { ErrorNotificationLabels } from './error-notification-content'
 export {
   showErrorNotification,
   setErrorNotificationLabels,

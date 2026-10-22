@@ -7,36 +7,14 @@ import {
     Text,
     Tooltip,
 } from '@mantine/core'
-import Axios from 'axios'
 import { ClipboardCopy, Check } from 'lucide-react'
 import {
-    isProblemDetails,
-    toProblemDetails,
-} from '@collana-solutions/blueprint-core'
+    defaultErrorNotificationLabels,
+    describeErrorNotification,
+} from './error-notification-content'
+import type { ErrorNotificationLabels } from './error-notification-content'
 
-/** Every user-visible string the error toast renders. */
-export interface ErrorNotificationLabels {
-    /** Toast title. */
-    title: string
-    /** Body used when the server sent no usable detail. */
-    genericMessage: string
-    /** Prefix for the trace identifier, in the body and in the copied text. */
-    traceIdLabel: string
-    /** Label and aria-label of the copy control. */
-    copy: string
-    /** Tooltip shown for a moment after copying. */
-    copied: string
-}
-
-const defaultLabels: ErrorNotificationLabels = {
-    title: 'Something went wrong',
-    genericMessage: 'Please try again.',
-    traceIdLabel: 'Trace ID',
-    copy: 'Copy error details',
-    copied: 'Copied',
-}
-
-let labels: ErrorNotificationLabels = defaultLabels
+let labels: ErrorNotificationLabels = defaultErrorNotificationLabels
 
 /**
  * Override the toast's copy, or pass `null` to restore the English defaults.
@@ -57,11 +35,11 @@ export function setErrorNotificationLabels(
         | null,
 ): void {
     if (!next) {
-        labels = defaultLabels
+        labels = defaultErrorNotificationLabels
         return
     }
 
-    const merged = { ...defaultLabels }
+    const merged = { ...defaultErrorNotificationLabels }
     for (const [key, value] of Object.entries(next)) {
         if (typeof value === 'string' && value.length > 0) {
             merged[key as keyof ErrorNotificationLabels] = value
@@ -70,31 +48,15 @@ export function setErrorNotificationLabels(
     labels = merged
 }
 
-function buildClipboardText(
-    text: ErrorNotificationLabels,
-    problem: {
-        title?: string
-        status?: number
-        detail?: string | null
-        traceId?: string
-        exception?: string
-    },
-): string {
-    const lines: string[] = []
-    if (problem.title) lines.push(`Title: ${problem.title}`)
-    if (problem.status) lines.push(`Status: ${problem.status}`)
-    if (problem.detail) lines.push(`Detail: ${problem.detail}`)
-    if (problem.traceId) lines.push(`${text.traceIdLabel}: ${problem.traceId}`)
-    if (problem.exception) lines.push(`\nException:\n${problem.exception}`)
-    return lines.join('\n')
-}
-
 /**
  * Show a rich error notification for API errors.
  *
  * Errors from Orval-generated hooks are already ProblemDetails (transformed
  * by the mutator). Errors from direct axios calls are still AxiosErrors.
  * This function handles both, but the primary path is ProblemDetails.
+ *
+ * A 4xx is titled with `rejectedTitle`, anything else with `title`. The body is the
+ * server's `detail`, else the reasons in its `errors`, else its `title`.
  */
 export function showErrorNotification(error: unknown) {
     // Non-browser guard (e.g. unit tests) — Mantine notifications require the DOM.
@@ -104,42 +66,11 @@ export function showErrorNotification(error: unknown) {
     // the CopyButton render prop below runs again on every copy, long after this call returns.
     const text = labels
 
-    // Resolve a ProblemDetails from whatever error shape we receive:
-    // 1. AxiosError with response.data as ProblemDetails (from interceptors)
-    // 2. AxiosError without ProblemDetails body (network error) — normalize it
-    // 3. Already a ProblemDetails (from React Query hooks — mutator extracts it)
-    //
-    // IMPORTANT: Check AxiosError FIRST because axios v1+ adds a `status`
-    // property to AxiosError, which makes isProblemDetails(axiosError) true.
-    let problem: ReturnType<typeof toProblemDetails> | undefined
-    if (Axios.isAxiosError(error)) {
-        const data: unknown = error.response?.data
-        problem = isProblemDetails(data) ? data : toProblemDetails(error)
-    } else if (isProblemDetails(error)) {
-        problem = error
-    }
-
-    const title = text.title
-    // Only surface server-provided detail when a real HTTP response came back.
-    // Network errors and locally-thrown JS errors fall back to a generic message
-    // so internal exception strings never reach the user.
-    const hasServerResponse = !!(problem?.status && problem.status > 0)
-    const detail = hasServerResponse
-        ? (problem?.detail ?? problem?.title)
-        : undefined
-    const traceId =
-        problem?.traceId && problem.traceId !== 'n/a'
-            ? problem.traceId
-            : undefined
-
-    const body = detail ?? text.genericMessage
-    const messageText = traceId
-        ? `${body}\n${text.traceIdLabel}: ${traceId}`
-        : body
-
-    const clipboardText = problem
-        ? buildClipboardText(text, problem)
-        : undefined
+    const {
+        title,
+        message: messageText,
+        clipboardText,
+    } = describeErrorNotification(error, text)
 
     notifications.show({
         title,

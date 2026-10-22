@@ -5,8 +5,17 @@ import type { ReactNode } from 'react'
 export interface FormKitLabels {
     /** Text of `<form.SubmitButton />` when no children are given. */
     submit: string
-    /** Title of the form-level `<form.ServerErrorAlert />` banner. */
+    /**
+     * Title of the form-level `<form.ServerErrorAlert />` banner when the error it shows came
+     * with a status for a failure on the server's side (5xx), or 0 for no response at all.
+     */
     serverError: string
+    /**
+     * Title of the same banner for a refused request (4xx): a failed business rule, a conflict,
+     * wrong credentials. Also used when the error carries no status, which includes everything
+     * `useSchemaForm` maps onto the form — that is only ever a 4xx.
+     */
+    requestRejected: string
     /** Title of the `<form.OrphanFieldErrors />` banner. */
     validationErrors: string
     /** aria-label for the PasswordInput visibility toggle. */
@@ -23,6 +32,7 @@ export interface FormKitLabels {
 export const defaultFormKitLabels: FormKitLabels = {
     submit: 'Submit',
     serverError: 'Server error',
+    requestRejected: 'Could not complete the request',
     validationErrors: 'Validation errors',
     togglePasswordVisibility: 'Toggle password visibility',
     unsavedChanges: {
@@ -72,6 +82,8 @@ export function mergeLabels(
     return {
         submit: partial.submit ?? defaultFormKitLabels.submit,
         serverError: partial.serverError ?? defaultFormKitLabels.serverError,
+        requestRejected:
+            partial.requestRejected ?? defaultFormKitLabels.requestRejected,
         validationErrors:
             partial.validationErrors ?? defaultFormKitLabels.validationErrors,
         togglePasswordVisibility:
