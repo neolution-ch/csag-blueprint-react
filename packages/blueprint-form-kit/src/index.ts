@@ -22,7 +22,7 @@ export {
 // The field components `useAppForm` registers as `field.TextInput`, `field.Select` and so on.
 // Reach for `field.*` inside a form; these named exports are for the cases that map cannot
 // serve: composing one into an app-specific field, or rendering a field outside `AppField`.
-// Note that the registry itself is fixed — a consumer cannot add an eleventh member — so an
+// Note that the registry itself is fixed — a consumer cannot add a twelfth member — so an
 // app-coupled field is written as a plain component that calls `useFieldContext` and is
 // rendered as the body of `form.AppField`.
 export {
@@ -33,6 +33,7 @@ export {
   MultiSelectField,
   DateInputField,
   DateTimeInputField,
+  TimeInputField,
   FileInputField,
   CheckboxField,
   ColorInputField,

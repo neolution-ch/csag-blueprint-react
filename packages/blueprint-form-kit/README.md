@@ -1,6 +1,6 @@
 # @collana-solutions/blueprint-form-kit
 
-TanStack Form + Mantine + Zod form kit: a schema-driven form hook, ten registered field
+TanStack Form + Mantine + Zod form kit: a schema-driven form hook, eleven registered field
 components, server-error mapping and an unsaved-changes guard.
 
 Part of [csag-blueprint-react](https://github.com/neolution-ch/csag-blueprint-react). All
@@ -93,15 +93,15 @@ build time and would ship one frozen value to everyone. Without the call the dia
 stay quiet, which is also the right behaviour in production.
 
 Registered fields: `TextInput`, `PasswordInput`, `NumberInput`, `Select`, `MultiSelect`,
-`DateInput`, `DateTimeInput`, `FileInput`, `Checkbox`, `ColorInput`.
+`DateInput`, `DateTimeInput`, `TimeInput`, `FileInput`, `Checkbox`, `ColorInput`.
 
 The same components are also named exports (`TextInputField`, `SelectField`, and so on) for
 the cases `field.*` cannot serve, such as composing one inside an app-specific field.
 
 ### A field this kit does not ship
 
-The registry is fixed: it is built once inside the package, so a consumer cannot add an
-eleventh member or replace one. A field that needs data only your app has — a generated
+The registry is fixed: it is built once inside the package, so a consumer cannot add a
+twelfth member or replace one. A field that needs data only your app has — a generated
 endpoint, your own translations — is written as an ordinary component that calls
 `useFieldContext`, and rendered as the body of `form.AppField`:
 
@@ -118,6 +118,40 @@ function UploadField({ label }: { label: string }) {
 
 `AppField` establishes the same context either way, so validation, blur tracking and error
 display behave exactly as they do for a registered field.
+
+## Date and time fields
+
+Each holds the string the API sends and expects, never a `Date`:
+
+| Field           | Form value                                        | Mantine component |
+| --------------- | ------------------------------------------------- | ----------------- |
+| `DateInput`     | `YYYY-MM-DD`                                      | `DateInput`       |
+| `DateTimeInput` | `YYYY-MM-DDTHH:mm:ss`, a local reading, no offset | `DateTimePicker`  |
+| `TimeInput`     | `HH:mm:ss`                                        | `TimePicker`      |
+
+An empty field is `null`.
+
+**Display follows the `DatesProvider` locale.** Set it to the UI language
+(`<DatesProvider settings={{ locale: languageCode }}>`), the same setting Mantine uses for the
+calendar's month and weekday names. The date shows in that locale's numeric form
+(`DD.MM.YYYY` for de-CH, `DD/MM/YYYY` for en-GB, `MM/DD/YYYY` for en-US) and the time on its
+12- or 24-hour clock. A `valueFormat` (or, for `TimeInput`, a `format`) you pass wins, and
+`DateInput` parses typed input with whichever format it shows. The kit loads dayjs's
+`customParseFormat` plugin itself; an app no longer needs to.
+
+**`DateTimeInput` holds a place's clock reading.** What the user picks is what is stored:
+`2026-10-26T10:00:00` means 10:00 on the place's clock, and the server resolves it against the
+place's time zone. The browser's zone never adds an offset.
+
+A value that arrives with an offset or `Z` is an instant, not a reading. The field shows it as
+the viewer's clock reading, the same reading every other instant in the UI shows, and leaves
+the form value untouched until the user picks something, which is then emitted as a local
+reading. In development (see `setDevMode`) it warns once per field.
+
+Mantine's picker works on local `Date` objects, so a reading inside a daylight-saving gap of
+the **viewer's** zone (02:30 on the night clocks spring forward there) comes back an hour
+later. Such a reading is invalid when the viewer's zone is the place's zone, and the server
+rejects it.
 
 ## License
 
