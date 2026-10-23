@@ -1,5 +1,7 @@
 # @collana-solutions/blueprint-zod-kit
 
+## 0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
