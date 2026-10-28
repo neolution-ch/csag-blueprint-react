@@ -32,17 +32,21 @@ formatters bound to it and to the language of the nearest `TranslationProvider`,
 publishes that language for them. The bound `formatPlaceTime` takes an optional `placeZone` for
 a place that carries its own zone (a stand at a fair abroad); omitted or `undefined`, the
 default applies. A place time is shown as written and labelled with the place zone's short name
-only for a viewer in another zone. A value whose date part is `0001-01-01`, the .NET default for an
+only for a viewer in another zone. `viewerTimeZone()` is cached for a minute and re-read when
+the tab regains focus or visibility. A value whose date part is `0001-01-01`, the .NET default for an
 unassigned date, formats as empty; any other value of the wrong kind is returned unchanged.
 
 **`DateInputField` follows the locale.** The default `valueFormat` is the `DatesProvider`
 locale's numeric date (`DD.MM.YYYY` for de-CH, `MM/DD/YYYY` for en-US) instead of a fixed
 `DD.MM.YYYY`, and typed input is parsed with whatever format is shown, including one you pass.
-The parser no longer accepts an incomplete or impossible date such as `31.02.2026`. The kit
+Days and months may be typed with or without a leading zero, month names in a passed format
+are read in the `DatesProvider` locale (matched to the lower-case key dayjs registers, then to
+the language), and an incomplete or impossible date such as `31.02.2026` is rejected. The kit
 loads dayjs's `customParseFormat` plugin itself, so an app's own `dayjs.extend` call becomes
 redundant (keeping it is harmless). `DateTimeInputField` shows its date the same way and uses
 the locale's 12- or 24-hour clock.
 
 **New `TimeInputField`**, registered as `field.TimeInput`: a Mantine `TimePicker` holding
 `HH:mm:ss`, the format System.Text.Json writes for a `TimeOnly`, on the locale's 12- or
-24-hour clock.
+24-hour clock. Erasing one segment leaves the others as typed while the form value is null; a
+reset or `setFieldValue` from outside shows the new value.

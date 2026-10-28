@@ -93,18 +93,47 @@ export function dateTimePattern(locale: string, withSeconds = false): string {
 }
 
 /**
+ * Every spelling of a format with `DD` and `MM` optionally unpadded: `DD.MM.YYYY` also yields
+ * `D.MM.YYYY`, `DD.M.YYYY` and `D.M.YYYY`. Escaped literals and month names are left alone.
+ */
+function paddingVariants(format: string): Array<string> {
+  let variants = ['']
+  for (const [token] of format.matchAll(/\[[^\]]*\]|M+|D+|[^[MD]+|./g)) {
+    const spellings =
+      token === 'DD' ? ['DD', 'D'] : token === 'MM' ? ['MM', 'M'] : [token]
+    variants = variants.flatMap((head) => spellings.map((s) => head + s))
+  }
+  return variants
+}
+
+/**
+ * dayjs looks a parse locale up by its exact registered key, and locale files register
+ * lower-case keys (`de-ch`), while a `DatesProvider` locale is usually a BCP 47 tag (`de-CH`).
+ * Tries the lower-cased tag, then its language, then falls back to dayjs's global locale.
+ */
+function dayjsLocale(locale: string): string {
+  const tag = locale.toLowerCase()
+  const language = tag.split('-')[0]
+  return [tag, language].find((key) => key in dayjs.Ls) ?? dayjs.locale()
+}
+
+/**
  * Parses typed input against a dayjs format and returns `YYYY-MM-DD`, or null while the input
- * is not yet a whole, real date. Single-digit days and months are accepted (`1.2.2026` for
- * `DD.MM.YYYY`); an impossible date such as `31.02.2026` is rejected rather than rolled over.
+ * is not yet a whole, real date. Days and months may be typed with or without a leading zero
+ * (`1.2.2026`, `1.02.2026`, `01.2.2026` for `DD.MM.YYYY`); an impossible date such as
+ * `31.02.2026` is rejected rather than rolled over. Month names in the format are read in the
+ * locale's language, when dayjs has that locale loaded.
  */
 export function parseDateInput(
   input: string,
   format: string,
   locale: string,
 ): string | null {
-  const relaxed = format.replace(/\[[^\]]*\]|M+|D+/g, (token) =>
-    token === 'MM' ? 'M' : token === 'DD' ? 'D' : token,
+  const parsed = dayjs(
+    input.trim(),
+    paddingVariants(format),
+    dayjsLocale(locale),
+    true,
   )
-  const parsed = dayjs(input.trim(), [format, relaxed], locale, true)
   return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null
 }

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import 'dayjs/locale/de-ch'
 import { MantineProvider } from '@mantine/core'
 import { DatesProvider } from '@mantine/dates'
 import type { ReactNode } from 'react'
@@ -22,12 +23,17 @@ window.matchMedia = (query: string) =>
 
 type FieldName = 'DateInput' | 'DateTimeInput' | 'TimeInput'
 
+interface FormHandle {
+    reset: () => void
+    setFieldValue: (name: 'value', value: string | null) => void
+}
+
 function renderField(
     kind: FieldName,
     initial: string | null,
     options: { locale?: string; props?: Record<string, unknown> } = {},
 ) {
-    const state: { value?: string | null } = {}
+    const state: { value?: string | null; form?: FormHandle } = {}
 
     function Harness() {
         const form = useAppForm({
@@ -38,6 +44,7 @@ function renderField(
                 },
             },
         })
+        state.form = form
         return (
             <form.AppField name="value">
                 {(field) => {
@@ -62,7 +69,14 @@ function renderField(
             )}
         </MantineProvider>,
     )
-    return { view, emitted: () => state.value }
+    return {
+        view,
+        emitted: () => state.value,
+        // Changes made through the form API, not by typing into the field.
+        fromOutside: (change: (form: FormHandle) => void) => {
+            act(() => change(state.form!))
+        },
+    }
 }
 
 afterEach(() => {
@@ -104,6 +118,29 @@ describe('DateInputField', () => {
 
         fireEvent.change(input, { target: { value: '2026/10/28' } })
         expect(emitted()).toBe('2026-10-28')
+    })
+
+    it('parses month names of a valueFormat in the DatesProvider locale', () => {
+        const { emitted } = renderField('DateInput', '2026-10-26', {
+            locale: 'de-CH',
+            props: { valueFormat: 'DD MMM YYYY' },
+        })
+        const input = screen.getByLabelText<HTMLInputElement>('Field')
+        expect(input.value).toBe('26 Okt. 2026')
+
+        fireEvent.change(input, { target: { value: '25 Okt. 2026' } })
+        expect(emitted()).toBe('2026-10-25')
+    })
+
+    it('accepts a day or month typed without its leading zero', () => {
+        const { emitted } = renderField('DateInput', '2026-10-26', {
+            locale: 'de-CH',
+        })
+        const input = screen.getByLabelText<HTMLInputElement>('Field')
+        fireEvent.change(input, { target: { value: '1.02.2026' } })
+        expect(emitted()).toBe('2026-02-01')
+        fireEvent.change(input, { target: { value: '03.2.2026' } })
+        expect(emitted()).toBe('2026-02-03')
     })
 
     it('does not emit while the typed date is incomplete', () => {
@@ -235,5 +272,51 @@ describe('TimeInputField', () => {
         })
         fireEvent.click(view.container.querySelector('button')!)
         expect(emitted()).toBeNull()
+    })
+
+    it('keeps the other segments when one is erased', () => {
+        const { view, emitted } = renderField('TimeInput', '09:30:00', {
+            locale: 'de-CH',
+        })
+        const [hours, minutes] = inputs(view.container)
+
+        fireEvent.keyDown(hours, { key: 'Backspace' })
+        expect(emitted()).toBeNull()
+        expect(hours.value).toBe('')
+        expect(minutes.value).toBe('30')
+
+        fireEvent.change(hours, { target: { value: '11' } })
+        expect(emitted()).toBe('11:30:00')
+        expect(minutes.value).toBe('30')
+    })
+
+    it('shows a value set from outside the field', () => {
+        const { view, fromOutside } = renderField('TimeInput', '09:30:00', {
+            locale: 'de-CH',
+        })
+        fromOutside((form) => form.setFieldValue('value', '14:15:00'))
+        let [hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('14')
+        expect(minutes.value).toBe('15')
+
+        fromOutside((form) => form.setFieldValue('value', null))
+        ;[hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('')
+        expect(minutes.value).toBe('')
+    })
+
+    it('restores every segment on a reset after a partial edit', () => {
+        const { view, emitted, fromOutside } = renderField(
+            'TimeInput',
+            '09:30:00',
+            { locale: 'de-CH' },
+        )
+        fireEvent.keyDown(inputs(view.container)[0], { key: 'Backspace' })
+        expect(emitted()).toBeNull()
+
+        fromOutside((form) => form.reset())
+        const [hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('09')
+        expect(minutes.value).toBe('30')
     })
 })

@@ -136,7 +136,11 @@ An empty field is `null`.
 calendar's month and weekday names. The date shows in that locale's numeric form
 (`DD.MM.YYYY` for de-CH, `DD/MM/YYYY` for en-GB, `MM/DD/YYYY` for en-US) and the time on its
 12- or 24-hour clock. A `valueFormat` (or, for `TimeInput`, a `format`) you pass wins, and
-`DateInput` parses typed input with whichever format it shows. The kit loads dayjs's
+`DateInput` parses typed input with whichever format it shows. Days and months may be typed
+with or without a leading zero (`1.2.2026`, `1.02.2026`), and an impossible date such as
+`31.02.2026` is rejected. Month names in a `valueFormat` (`DD MMM YYYY`) are read in the
+`DatesProvider` locale, provided the app has loaded that dayjs locale (`dayjs/locale/de-ch`);
+the kit matches `de-CH` to the `de-ch` key, then to `de`. The kit loads dayjs's
 `customParseFormat` plugin itself; an app no longer needs to.
 
 **`DateTimeInput` holds a place's clock reading.** What the user picks is what is stored:

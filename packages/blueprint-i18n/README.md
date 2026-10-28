@@ -75,7 +75,7 @@ arrives, and none of them hands a string to `new Date()`.
 | `formatDuration(minutes, opts)`   | `90`                                        | `1 hr, 30 min`. Hours and minutes, never days.                                           |
 | `formatDateRange(from, to, opts)` | `2026-10-21`, `2026-10-25`, either optional | `21 – 25 Oct 2026`; an open side as `21 Oct 2026 –`.                                     |
 | `todayAt(zone)`                   | —                                           | Today in that zone, as `YYYY-MM-DD`.                                                     |
-| `viewerTimeZone()`                | —                                           | The browser's IANA zone.                                                                 |
+| `viewerTimeZone()`                | —                                           | The browser's IANA zone; cached for a minute, re-read when the tab regains focus.        |
 
 Every formatter takes `locale` explicitly; nothing falls back to the browser's language. The
 date-time formatters take `dateOnly` and `style` (`medium` by default, `short` for the

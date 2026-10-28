@@ -115,11 +115,45 @@ export function isSameZone(a: string, b: string): boolean {
 }
 
 /**
- * The IANA id of the zone the browser runs in. Read on every call, never cached: the operating
- * system's zone can change while a tab stays open.
+ * How long a read of the viewer's zone is trusted. Reading it means constructing an
+ * `Intl.DateTimeFormat`, which costs more than the rest of a `formatPlaceTime` call together,
+ * and a table formats hundreds of cells per render.
+ */
+const VIEWER_ZONE_TTL_MS = 60_000
+
+let viewerZone: { id: string; readAt: number } | undefined
+let listeningForZoneChanges = false
+
+/** Forgets the cached viewer zone. Exported for tests only; not part of the package API. */
+export function forgetViewerTimeZone(): void {
+  viewerZone = undefined
+}
+
+/**
+ * The operating system's zone can change while a tab stays open, typically while the user is
+ * in another window or the laptop is closed. Coming back to the tab re-reads it.
+ */
+function listenForZoneChanges(): void {
+  if (listeningForZoneChanges || typeof window === 'undefined') return
+  listeningForZoneChanges = true
+  window.addEventListener('focus', forgetViewerTimeZone)
+  document.addEventListener('visibilitychange', forgetViewerTimeZone)
+}
+
+/**
+ * The IANA id of the zone the browser runs in. Cached, and read again after a minute or when
+ * the tab regains focus or visibility.
  */
 export function viewerTimeZone(): string {
-  return new Intl.DateTimeFormat().resolvedOptions().timeZone
+  const now = Date.now()
+  if (!viewerZone || Math.abs(now - viewerZone.readAt) > VIEWER_ZONE_TTL_MS) {
+    viewerZone = {
+      id: new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      readAt: now,
+    }
+    listenForZoneChanges()
+  }
+  return viewerZone.id
 }
 
 function pad(value: number, length = 2): string {
