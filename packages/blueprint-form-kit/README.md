@@ -37,7 +37,7 @@ inputs directly: the registered ones handle value binding, blur tracking and err
 
 ## Labels
 
-The kit renders eight strings of its own. With no provider it uses English defaults, which is
+The kit renders nine strings of its own. With no provider it uses English defaults, which is
 what keeps it working before an app's translations have loaded. To localize them, wrap the
 tree in `FormKitLabelsProvider` and pass your own.
 
@@ -46,6 +46,23 @@ that has not arrived from the API yet never reaches the DOM as the string `undef
 accepted because a generated client whose backend marks those columns nullable produces
 `string | null`; without it every call site would need a `?? undefined` that looks like a
 runtime guard but only satisfies the compiler.
+
+### Server error banner titles
+
+`<form.ServerErrorAlert />` picks its title from the status of what it shows: `requestRejected`
+("Could not complete the request") for a refused request (4xx) — wrong credentials, a booking
+conflict, a failed business rule — and `serverError` ("Server error") for a 5xx, or 0 when no
+response arrived. Everything `useSchemaForm` maps onto the form is a 4xx.
+
+When you catch a server answer yourself and show it in the banner, pass its status beside the
+message:
+
+```ts
+form.setErrorMap({ onServer: { form: message, status: error.status } } as never)
+```
+
+Leave `fields` out of that object. TanStack Form keeps only `form` from an object that has
+`fields`, so the status would be dropped. Without a status the banner uses `requestRejected`.
 
 ## API
 
