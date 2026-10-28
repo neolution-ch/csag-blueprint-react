@@ -57,6 +57,51 @@ describe('useDateTimeFormat', () => {
         expect(result.current.todayAt('America/Los_Angeles')).toBe('2026-10-25')
     })
 
+    it("formats a place that carries its own zone in that zone's terms", () => {
+        const { result } = renderHook(() => useDateTimeFormat(), {
+            wrapper: wrapperFor('en-GB', 'Europe/Zurich'),
+        })
+        // A Zurich tenant's stand at a fair in Miami. Neither test zone is New York's, so
+        // the reading is labelled with New York's offset (EDT until 1 November).
+        expect(
+            result.current.formatPlaceTime('2026-10-26T10:00:00', {
+                placeZone: 'America/New_York',
+            }),
+        ).toBe('26 Oct 2026, 10:00 GMT-4')
+        expect(
+            result.current.formatPlaceTime('2026-11-02T10:00:00', {
+                placeZone: 'America/New_York',
+                style: 'short',
+            }),
+        ).toBe('02/11/2026, 10:00 GMT-5')
+    })
+
+    it('labels an overriding place zone only when it differs from the viewer zone', () => {
+        const { result } = renderHook(() => useDateTimeFormat(), {
+            wrapper: wrapperFor('en-GB', 'Asia/Tokyo'),
+        })
+        expect(
+            result.current.formatPlaceTime('2026-10-26T10:00:00', {
+                placeZone: viewerTimeZone(),
+            }),
+        ).toBe('26 Oct 2026, 10:00')
+    })
+
+    it('keeps the default place zone when the override is undefined', () => {
+        const { result } = renderHook(() => useDateTimeFormat(), {
+            wrapper: wrapperFor('en-GB', 'Europe/Zurich'),
+        })
+        expect(
+            result.current.formatPlaceTime('2026-10-26T10:00:00', {
+                placeZone: undefined,
+            }),
+        ).toBe(
+            viewerTimeZone() === 'Europe/Zurich'
+                ? '26 Oct 2026, 10:00'
+                : '26 Oct 2026, 10:00 CET',
+        )
+    })
+
     it('lets an explicit locale override the UI language', () => {
         const { result } = renderHook(() => useDateTimeFormat(), {
             wrapper: wrapperFor('de-CH', 'Europe/Zurich', 'en-US'),

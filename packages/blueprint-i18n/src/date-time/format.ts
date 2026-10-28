@@ -42,7 +42,10 @@ export interface InstantFormatOptions extends DateTimeFormatOptions {
 }
 
 export interface PlaceTimeFormatOptions extends DateTimeFormatOptions {
-  /** The IANA zone of the place the reading belongs to: the tenant's zone. */
+  /**
+   * The IANA zone of the place the reading belongs to. That is the tenant's zone unless the
+   * place carries its own, such as a stand at a fair in another country.
+   */
   placeZone: string
 }
 

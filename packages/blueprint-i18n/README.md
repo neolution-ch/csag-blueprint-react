@@ -41,7 +41,7 @@ this package knowing anything about your keys.
 | `translationKeysToDebugObject`     | function  | Replaces every value with its own key, for a show-translation-keys debug mode.                                                                                        |
 | `formatMessage`                    | function  | Substitutes `{Key}` placeholders, the syntax the backend emits. Unknown placeholders pass through unchanged.                                                          |
 | `interpolate`                      | function  | **Deprecated.** Substitutes `{{key}}` placeholders. Use `formatMessage`.                                                                                              |
-| `DateTimeFormatProvider`           | component | Binds the date and time formatters to the UI language and the place zone. See [Dates and times](#dates-and-times).                                                    |
+| `DateTimeFormatProvider`           | component | Binds the date and time formatters to the UI language and the default place zone. See [Dates and times](#dates-and-times).                                            |
 | `useDateTimeFormat`                | hook      | The bound formatters.                                                                                                                                                 |
 | `formatInstant` … `viewerTimeZone` | function  | The pure formatters, each taking the locale explicitly.                                                                                                               |
 
@@ -83,8 +83,8 @@ locale's numeric date with a four-digit year). `formatDuration` takes `style` as
 `Intl.DurationFormat` names it (`short`, `long`, `narrow`) and falls back to `Intl.NumberFormat`
 and `Intl.ListFormat` where `DurationFormat` is missing.
 
-In a component, use the bound versions. `DateTimeFormatProvider` takes the place zone (the
-tenant's zone) and reads the locale from the nearest `TranslationProvider`:
+In a component, use the bound versions. `DateTimeFormatProvider` takes the default place zone
+(the tenant's zone) and reads the locale from the nearest `TranslationProvider`:
 
 ```tsx
 <TranslationProvider translations={translations} languageCode={languageCode}>
@@ -98,9 +98,15 @@ tenant's zone) and reads the locale from the nearest `TranslationProvider`:
 const { formatPlaceTime, formatInstant, todayAt } = useDateTimeFormat()
 
 formatPlaceTime(reservation.startLocal) // "26 Oct 2026, 10:00", plus " CET" outside Zurich
+formatPlaceTime(stand.opensLocal, { placeZone: stand.timeZoneId }) // a place with its own zone
 formatInstant(order.createdAt) // in the viewer's zone
-todayAt() // today in the place zone
+todayAt() // today in the default place zone
 ```
+
+The tenant's zone is only the default. A place that sits elsewhere, such as a Zurich tenant's
+stand at a fair in Miami, carries its own zone, and passing it as `placeZone` formats and labels
+the reading in that zone's terms (`26 Oct 2026, 10:00 GMT-4`). An omitted or `undefined`
+`placeZone` keeps the default.
 
 Pass `locale` to the provider only to override the UI language. Without either, it throws
 rather than guess.

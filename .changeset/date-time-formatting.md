@@ -27,10 +27,12 @@ To migrate a `field.DateTimeInput`:
 **Date and time formatters in `blueprint-i18n`.** `formatInstant`, `formatPlaceTime`,
 `formatDate`, `formatTimeOfDay`, `formatDuration`, `formatDateRange`, `todayAt` and
 `viewerTimeZone`, all on `Intl`, each taking the locale explicitly. `DateTimeFormatProvider`
-takes the tenant's zone and `useDateTimeFormat()` returns the formatters bound to it and to the
-language of the nearest `TranslationProvider`, which now publishes that language for them.
-A place time is shown as written and labelled with the place zone's short name only for a
-viewer in another zone. A value whose date part is `0001-01-01`, the .NET default for an
+takes the tenant's zone as the default place zone, and `useDateTimeFormat()` returns the
+formatters bound to it and to the language of the nearest `TranslationProvider`, which now
+publishes that language for them. The bound `formatPlaceTime` takes an optional `placeZone` for
+a place that carries its own zone (a stand at a fair abroad); omitted or `undefined`, the
+default applies. A place time is shown as written and labelled with the place zone's short name
+only for a viewer in another zone. A value whose date part is `0001-01-01`, the .NET default for an
 unassigned date, formats as empty; any other value of the wrong kind is returned unchanged.
 
 **`DateInputField` follows the locale.** The default `valueFormat` is the `DatesProvider`

@@ -19,14 +19,19 @@ import { todayAt } from './zones'
 
 type Input = string | null | undefined
 
-/** The formatters, bound to the UI language and the place zone. */
+/** The formatters, bound to the UI language and the default place zone. */
 export interface DateTimeFormatters {
     readonly locale: string
+    /** The default place zone: the tenant's zone. */
     readonly placeZone: string
     formatInstant: (isoInstant: Input, options?: InstantFormatOptions) => string
+    /**
+     * Formats a place's local reading in the default place zone, or in
+     * `options.placeZone` for a place that carries its own zone.
+     */
     formatPlaceTime: (
         localReading: Input,
-        options?: DateTimeFormatOptions,
+        options?: DateTimeFormatOptions & { placeZone?: string },
     ) => string
     formatDate: (date: Input, options?: DateFormatOptions) => string
     formatTimeOfDay: (time: Input) => string
@@ -50,7 +55,11 @@ function bindFormatters(locale: string, placeZone: string): DateTimeFormatters {
         formatInstant: (value, options) =>
             formatInstant(value, { ...options, locale }),
         formatPlaceTime: (value, options) =>
-            formatPlaceTime(value, { ...options, locale, placeZone }),
+            formatPlaceTime(value, {
+                ...options,
+                locale,
+                placeZone: options?.placeZone ?? placeZone,
+            }),
         formatDate: (value, options) =>
             formatDate(value, { ...options, locale }),
         formatTimeOfDay: (value) => formatTimeOfDay(value, { locale }),
@@ -67,7 +76,10 @@ const DateTimeFormatContext = createContext<DateTimeFormatters | undefined>(
 )
 
 export interface DateTimeFormatProviderProps {
-    /** The IANA zone that place times belong to: the tenant's zone. */
+    /**
+     * The IANA zone place times belong to unless a place carries its own: the
+     * tenant's zone.
+     */
     placeZone: string
     /**
      * Overrides the formatting locale. Defaults to the language of the nearest
@@ -78,8 +90,8 @@ export interface DateTimeFormatProviderProps {
 }
 
 /**
- * Binds the date and time formatters to the UI language and the place zone, for
- * `useDateTimeFormat` below it.
+ * Binds the date and time formatters to the UI language and the default place
+ * zone, for `useDateTimeFormat` below it.
  */
 export function DateTimeFormatProvider({
     placeZone,
