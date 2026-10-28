@@ -49,4 +49,5 @@ the locale's 12- or 24-hour clock.
 **New `TimeInputField`**, registered as `field.TimeInput`: a Mantine `TimePicker` holding
 `HH:mm:ss`, the format System.Text.Json writes for a `TimeOnly`, on the locale's 12- or
 24-hour clock. Erasing one segment leaves the others as typed while the form value is null; a
-reset or `setFieldValue` from outside shows the new value.
+reset or `setFieldValue` from outside shows the value written, including a null the form
+already held.

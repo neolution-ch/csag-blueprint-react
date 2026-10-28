@@ -132,12 +132,25 @@ export function forgetViewerTimeZone(): void {
 /**
  * The operating system's zone can change while a tab stays open, typically while the user is
  * in another window or the laptop is closed. Coming back to the tab re-reads it.
+ *
+ * Each event source is checked on its own: some runtimes define a `window` without
+ * `addEventListener` (React Native) or a `window` but no `document` (Deno 1.x).
  */
 function listenForZoneChanges(): void {
-  if (listeningForZoneChanges || typeof window === 'undefined') return
+  if (listeningForZoneChanges) return
   listeningForZoneChanges = true
-  window.addEventListener('focus', forgetViewerTimeZone)
-  document.addEventListener('visibilitychange', forgetViewerTimeZone)
+  if (
+    typeof window !== 'undefined' &&
+    typeof window.addEventListener === 'function'
+  ) {
+    window.addEventListener('focus', forgetViewerTimeZone)
+  }
+  if (
+    typeof document !== 'undefined' &&
+    typeof document.addEventListener === 'function'
+  ) {
+    document.addEventListener('visibilitychange', forgetViewerTimeZone)
+  }
 }
 
 /**

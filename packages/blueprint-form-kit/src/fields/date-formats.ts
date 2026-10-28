@@ -114,7 +114,10 @@ function paddingVariants(format: string): Array<string> {
 function dayjsLocale(locale: string): string {
   const tag = locale.toLowerCase()
   const language = tag.split('-')[0]
-  return [tag, language].find((key) => key in dayjs.Ls) ?? dayjs.locale()
+  return (
+    [tag, language].find((key) => Object.hasOwn(dayjs.Ls, key)) ??
+    dayjs.locale()
+  )
 }
 
 /**

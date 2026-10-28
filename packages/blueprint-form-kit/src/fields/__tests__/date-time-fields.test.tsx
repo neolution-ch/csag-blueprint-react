@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import 'dayjs/locale/de-ch'
 import { MantineProvider } from '@mantine/core'
 import { DatesProvider } from '@mantine/dates'
+import { StrictMode } from 'react'
 import type { ReactNode } from 'react'
 import { useAppForm } from '../../useAppForm'
 import { setDevMode } from '../../dev-mode'
@@ -26,12 +27,17 @@ type FieldName = 'DateInput' | 'DateTimeInput' | 'TimeInput'
 interface FormHandle {
     reset: () => void
     setFieldValue: (name: 'value', value: string | null) => void
+    getFieldMeta: (name: 'value') => { isBlurred: boolean } | undefined
 }
 
 function renderField(
     kind: FieldName,
     initial: string | null,
-    options: { locale?: string; props?: Record<string, unknown> } = {},
+    options: {
+        locale?: string
+        props?: Record<string, unknown>
+        strict?: boolean
+    } = {},
 ) {
     const state: { value?: string | null; form?: FormHandle } = {}
 
@@ -57,7 +63,13 @@ function renderField(
         )
     }
 
-    const tree = <Harness />
+    const tree = options.strict ? (
+        <StrictMode>
+            <Harness />
+        </StrictMode>
+    ) : (
+        <Harness />
+    )
     const view = render(
         <MantineProvider env="test">
             {options.locale ? (
@@ -275,14 +287,26 @@ describe('TimeInputField', () => {
     })
 
     it('keeps the other segments when one is erased', () => {
-        const { view, emitted } = renderField('TimeInput', '09:30:00', {
-            locale: 'de-CH',
-        })
+        const { view, emitted, fromOutside } = renderField(
+            'TimeInput',
+            '09:30:00',
+            {
+                locale: 'de-CH',
+            },
+        )
         const [hours, minutes] = inputs(view.container)
 
         fireEvent.keyDown(hours, { key: 'Backspace' })
         expect(emitted()).toBeNull()
         expect(hours.value).toBe('')
+        expect(minutes.value).toBe('30')
+
+        // Leaving the field marks it blurred, which is not a write.
+        fireEvent.focusOut(hours)
+        fromOutside((form) => {
+            expect(form.getFieldMeta('value')?.isBlurred).toBe(true)
+        })
+        expect(inputs(view.container)).toEqual([hours, minutes])
         expect(minutes.value).toBe('30')
 
         fireEvent.change(hours, { target: { value: '11' } })
@@ -316,6 +340,73 @@ describe('TimeInputField', () => {
 
         fromOutside((form) => form.reset())
         const [hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('09')
+        expect(minutes.value).toBe('30')
+    })
+
+    it('clears a partial edit on a reset to an empty default', () => {
+        const { view, emitted, fromOutside } = renderField('TimeInput', null, {
+            locale: 'de-CH',
+        })
+        let [hours, minutes] = inputs(view.container)
+        fireEvent.change(hours, { target: { value: '09' } })
+        fireEvent.change(minutes, { target: { value: '30' } })
+        expect(emitted()).toBe('09:30:00')
+        fireEvent.keyDown(minutes, { key: 'Backspace' })
+        expect(emitted()).toBeNull()
+
+        fromOutside((form) => form.reset())
+        ;[hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('')
+        expect(minutes.value).toBe('')
+    })
+
+    it('clears a partial edit when null is set from outside', () => {
+        const { view, emitted, fromOutside } = renderField(
+            'TimeInput',
+            '09:30:00',
+            { locale: 'de-CH' },
+        )
+        fireEvent.keyDown(inputs(view.container)[0], { key: 'Backspace' })
+        expect(emitted()).toBeNull()
+
+        fromOutside((form) => form.setFieldValue('value', null))
+        const [hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('')
+        expect(minutes.value).toBe('')
+    })
+
+    it('never remounts the picker for its own edits', () => {
+        const { view, emitted } = renderField('TimeInput', '09:30:00', {
+            locale: 'de-CH',
+            strict: true,
+        })
+        const [hours, minutes] = inputs(view.container)
+        fireEvent.keyDown(hours, { key: 'Backspace' })
+        fireEvent.change(hours, { target: { value: '11' } })
+        fireEvent.change(minutes, { target: { value: '45' } })
+        expect(emitted()).toBe('11:45:00')
+        expect(inputs(view.container)).toEqual([hours, minutes])
+    })
+
+    it('keeps partial edits and outside changes apart under StrictMode', () => {
+        const { view, emitted, fromOutside } = renderField(
+            'TimeInput',
+            '09:30:00',
+            { locale: 'de-CH', strict: true },
+        )
+        let [hours, minutes] = inputs(view.container)
+        fireEvent.keyDown(hours, { key: 'Backspace' })
+        expect(emitted()).toBeNull()
+        expect(minutes.value).toBe('30')
+
+        fromOutside((form) => form.setFieldValue('value', null))
+        ;[hours, minutes] = inputs(view.container)
+        expect(hours.value).toBe('')
+        expect(minutes.value).toBe('')
+
+        fromOutside((form) => form.reset())
+        ;[hours, minutes] = inputs(view.container)
         expect(hours.value).toBe('09')
         expect(minutes.value).toBe('30')
     })

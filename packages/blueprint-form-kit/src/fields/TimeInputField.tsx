@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TimePicker, useDatesContext } from '@mantine/dates'
 import type { TimePickerProps } from '@mantine/dates'
 import { useFieldContext } from '../form-context'
@@ -36,9 +36,9 @@ function syncFrom(
  *
  * The picker emits `''` while a segment is empty, and clears every segment
  * whenever its `value` becomes `''`. So the form's null is not passed back to
- * it: the picker keeps its last value and its own partial segments. A form
- * value changed from outside (a reset, `setFieldValue`) remounts the picker
- * with that value instead.
+ * it: the picker keeps its last value and its own partial segments. A value
+ * written from outside (a reset, `setFieldValue`) remounts the picker with
+ * that value instead, even when it is the null the form already holds.
  */
 export default function TimeInputField({ format, ...props }: Props) {
     const field = useFieldContext<string | null>()
@@ -52,6 +52,32 @@ export default function TimeInputField({ format, ...props }: Props) {
     if (formValue !== picker.source) {
         setPicker(syncFrom(formValue, picker.generation + 1))
     }
+
+    // A write of the value this field already holds leaves `field.state.value`
+    // unchanged, so it is recognised in the store instead: any write that
+    // replaces both the values and this field's meta, other than the field's
+    // own `handleChange` below, came from outside.
+    const ownWrite = useRef(false)
+    const { form, name } = field
+    useEffect(() => {
+        let previous = form.baseStore.state
+        const subscription = form.baseStore.subscribe((next) => {
+            const before = previous
+            previous = next
+            const metaOf = (state: typeof next) =>
+                (state.fieldMetaBase as Record<string, unknown>)[name]
+            if (
+                ownWrite.current ||
+                next.values === before.values ||
+                metaOf(next) === metaOf(before)
+            ) {
+                return
+            }
+            const value = form.getFieldValue(name) as string | null | undefined
+            setPicker((current) => syncFrom(value, current.generation + 1))
+        })
+        return () => subscription.unsubscribe()
+    }, [form, name])
 
     return (
         <TimePicker
@@ -67,7 +93,12 @@ export default function TimeInputField({ format, ...props }: Props) {
                     source: value,
                     shown: value ?? current.shown,
                 }))
-                field.handleChange(value)
+                ownWrite.current = true
+                try {
+                    field.handleChange(value)
+                } finally {
+                    ownWrite.current = false
+                }
             }}
             format={format ?? hourFormat(dates.locale)}
             error={

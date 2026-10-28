@@ -132,4 +132,12 @@ describe('parseDateInput', () => {
       '2026-10-25',
     )
   })
+
+  it('never mistakes an inherited property for a registered locale', () => {
+    for (const locale of ['constructor', 'toString', '__proto__']) {
+      expect(parseDateInput('25 Oct 2026', 'DD MMM YYYY', locale)).toBe(
+        '2026-10-25',
+      )
+    }
+  })
 })
