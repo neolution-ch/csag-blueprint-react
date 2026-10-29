@@ -148,6 +148,21 @@ describe('formatInstant', () => {
     )
     expect(formatInstant('2026-10-21', enGB)).toBe('2026-10-21')
   })
+
+  it('returns a value with an out-of-range offset unchanged', () => {
+    expect(formatInstant('2026-10-21T10:00:00+00:60', enGB)).toBe(
+      '2026-10-21T10:00:00+00:60',
+    )
+    expect(formatInstant('2026-10-21T10:00:00+24:00', enGB)).toBe(
+      '2026-10-21T10:00:00+24:00',
+    )
+    expect(formatInstant('2026-10-21T10:00:00-99:00', enGB)).toBe(
+      '2026-10-21T10:00:00-99:00',
+    )
+    expect(formatInstant('2026-10-21T10:00:00+23:59', enGB)).toBe(
+      formatInstant('2026-10-20T10:01:00Z', enGB),
+    )
+  })
 })
 
 describe('formatPlaceTime', () => {
@@ -303,6 +318,33 @@ describe('formatDateRange', () => {
       '– 25 Oct 2026',
     )
     expect(norm(formatDateRange(undefined, null, enGB))).toBe('')
+  })
+
+  it('leaves out the era both ends share', () => {
+    const japanese = { locale: 'en-US-u-ca-japanese' }
+    expect(norm(formatDateRange('2026-10-21', null, japanese))).toBe(
+      'Oct 21, 8 Reiwa –',
+    )
+    expect(norm(formatDateRange(null, '2026-10-25', japanese))).toBe(
+      '– Oct 25, 8 Reiwa',
+    )
+  })
+
+  it('writes the closing literal of a date once', () => {
+    const ru = { locale: 'ru' }
+    expect(norm(formatDateRange('2026-10-21', null, ru))).toBe(
+      '21 окт. 2026 г. –',
+    )
+    expect(norm(formatDateRange(null, '2026-10-25', ru))).toBe(
+      '– 25 окт. 2026 г.',
+    )
+    const ko = { locale: 'ko' }
+    expect(norm(formatDateRange('2026-10-21', null, ko))).toBe(
+      '2026. 10. 21. ~',
+    )
+    expect(norm(formatDateRange(null, '2026-10-25', ko))).toBe(
+      '~ 2026. 10. 25.',
+    )
   })
 })
 

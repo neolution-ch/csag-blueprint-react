@@ -234,13 +234,35 @@ export function formatDateRange(
   return [fromText, toText].join(rangeSeparator(formatter)).trim()
 }
 
-/** The literal a locale puts between the two ends of a range: ` – `, `–`, ` ~ `. */
+/**
+ * The literal a locale puts between the two ends of a range: ` – `, `–`, ` ~ `. It is the text
+ * between the last part of the start and the first part of the end. The other `shared` parts
+ * are fields both ends have in common, such as the era in `Jan 1, 12 – Jan 1, 13 Heisei`.
+ *
+ * A locale whose dates end in a literal (`1 янв. 2000 г.`, `2000. 1. 1.`) writes the start's
+ * copy of it at the head of that text (` г. – `, `. ~ `) and the end's copy after the end. The
+ * single date the separator is joined to already ends in it, so that copy is cut off.
+ */
 function rangeSeparator(formatter: Intl.DateTimeFormat): string {
-  return formatter
-    .formatRangeToParts(Date.UTC(2000, 0, 1), Date.UTC(2001, 0, 1))
-    .filter((p) => p.source === 'shared')
-    .map((p) => p.value)
-    .join('')
+  const parts = formatter.formatRangeToParts(
+    Date.UTC(2000, 0, 1),
+    Date.UTC(2001, 0, 1),
+  )
+  const text = (from: number, to?: number) =>
+    parts
+      .slice(from, to)
+      .map((p) => p.value)
+      .join('')
+  const separator = text(
+    parts.findLastIndex((p) => p.source === 'startRange') + 1,
+    parts.findIndex((p) => p.source === 'endRange'),
+  )
+  const closing = text(parts.findLastIndex((p) => p.source === 'endRange') + 1)
+  // The two copies need not use the same space character (mk: U+2009, then U+202F).
+  const blank = (value: string) => value.replace(/\s/g, ' ')
+  return blank(separator).startsWith(blank(closing))
+    ? separator.slice(closing.length)
+    : separator
 }
 
 interface DurationFormatter {

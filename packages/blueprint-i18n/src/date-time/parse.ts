@@ -95,8 +95,11 @@ export function parseInstant(value: string): number | undefined {
   const clock = toClock(m[1], m[2], m[3], m[4], m[5], m[6])
   if (!clock) return undefined
   const millis = Number((m[7] || '0').padEnd(3, '0').slice(0, 3))
-  const offsetMinutes = m[8]
-    ? 0
-    : (m[9] === '-' ? -1 : 1) * (Number(m[10]) * 60 + Number(m[11]))
-  return utcEpoch(clock) + millis - offsetMinutes * 60_000
+  if (m[8]) return utcEpoch(clock) + millis
+  const offsetHours = Number(m[10])
+  const offsetMinutes = Number(m[11])
+  // RFC 3339 bounds an offset's hours and minutes as it does a time of day's.
+  if (offsetHours > 23 || offsetMinutes > 59) return undefined
+  const offset = (m[9] === '-' ? -1 : 1) * (offsetHours * 60 + offsetMinutes)
+  return utcEpoch(clock) + millis - offset * 60_000
 }

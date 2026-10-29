@@ -119,8 +119,8 @@ rather than guess.
   1 January of year 1.
 - Any other value that is not of the expected kind is returned unchanged, the way
   `formatMessage` leaves an unknown placeholder in place: a contract mismatch shows up on
-  screen instead of as a blank or a wrong date. An instant without an offset and a local
-  reading with one are both mismatches.
+  screen instead of as a blank or a wrong date. An instant without an offset or with one out
+  of range (`+00:60`, `+24:00`) and a local reading with an offset are all mismatches.
 - An unknown zone id throws a `RangeError`, as `Intl` does.
 
 ### Daylight-saving transitions
