@@ -15,7 +15,7 @@ clocks had changed.
 To migrate a `field.DateTimeInput`:
 
 - Change the property behind it to a local reading (a `DateTime` in the C# DTO, declared in
-  the OpenAPI document as `format: local-date-time` rather than `date-time`) and resolve it
+  the OpenAPI document as `format: date-time-local` rather than `date-time`) and resolve it
   against the tenant's zone on the server. Regenerate the client, so the generated zod schema
   stops demanding an offset.
 - A value that still arrives with an offset or `Z` is read as the instant it is, shown as the
