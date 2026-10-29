@@ -27,7 +27,7 @@ jobs:
           private-key: ${{ secrets.CHANGESETS_BOT_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
@@ -51,7 +51,7 @@ jobs:
         id: publish-config
         run: |
           if [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
-            # Extract major version from branch name (e.g., release/v1.x -> release-v1)
+            # Extract major version from branch name (e.g., release/v1.x → release-v1)
             BRANCH="${{ github.ref_name }}"
             TAG=$(echo "$BRANCH" | sed -n 's|release/v\([0-9]*\)\..*|release-v\1|p')
             echo "tag=--tag $TAG" >> "$GITHUB_OUTPUT"
@@ -61,7 +61,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish
         id: changesets
-        uses: changesets/action@v2.1.1
+        uses: changesets/action@v2
         with:
           # The App token must be passed through this input: the action reads only
           # the input, and the resulting version PR and release commit are attributed
