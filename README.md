@@ -14,7 +14,7 @@ Published to [npmjs.com/org/collana-solutions](https://www.npmjs.com/org/collana
 | Package                                                                       | What it is                                                                                                    |
 | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [`@collana-solutions/blueprint-core`](packages/blueprint-core#readme)         | RFC 9457 ProblemDetails vocabulary and the FastEndpoints error parser. No React, no Mantine.                  |
-| [`@collana-solutions/blueprint-i18n`](packages/blueprint-i18n#readme)         | Typed translation kit: context factory, client cache and ETag helpers, empty-translations recovery guard.     |
+| [`@collana-solutions/blueprint-i18n`](packages/blueprint-i18n#readme)         | Typed translation kit: context factory, client cache helpers, recovery guard, date and time formatters.       |
 | [`@collana-solutions/blueprint-form-kit`](packages/blueprint-form-kit#readme) | TanStack Form + Mantine + Zod form kit.                                                                       |
 | [`@collana-solutions/blueprint-api-kit`](packages/blueprint-api-kit#readme)   | Axios and TanStack Query plumbing for an ASP.NET backend: error notifications, query client, Orval instances. |
 | [`@collana-solutions/blueprint-zod-kit`](packages/blueprint-zod-kit#readme)   | Zod v4 integration for a .NET backend: the Orval `stringFormat` polyfill and a localized error map.           |
