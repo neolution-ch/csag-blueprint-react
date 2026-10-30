@@ -46,11 +46,11 @@ jobs:
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'packages/*/package.json')
           if [ -n "$CHANGED" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Workspace manifests changed:"
+            echo "Workspace package.json files changed:"
             echo "$CHANGED"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No workspace manifest changes detected (lockfile-only update)"
+            echo "No workspace package.json changes detected (lockfile-only update)"
           fi
 
       - name: Setup Node.js
