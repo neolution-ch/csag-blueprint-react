@@ -53,6 +53,7 @@ export default [
       // `include` (which is src-only), so the type-aware rules cannot parse them.
       '**/tsdown.config.ts',
       '**/vitest.config.ts',
+      '**/vitest.*.config.ts',
       'vitest.config.ts',
     ],
   },

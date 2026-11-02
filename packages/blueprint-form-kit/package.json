@@ -47,7 +47,7 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && vitest run --config vitest.los-angeles.config.ts",
     "prepack": "pnpm run build"
   },
   "dependencies": {

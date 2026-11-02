@@ -6,6 +6,7 @@ import NumberInputField from './fields/NumberInputField'
 import SelectField from './fields/SelectField'
 import DateInputField from './fields/DateInputField'
 import DateTimeInputField from './fields/DateTimeInputField'
+import TimeInputField from './fields/TimeInputField'
 import FileInputField from './fields/FileInputField'
 import CheckboxField from './fields/CheckboxField'
 import MultiSelectField from './fields/MultiSelectField'
@@ -24,6 +25,7 @@ export const { useAppForm, withForm } = createFormHook({
     Select: SelectField,
     DateInput: DateInputField,
     DateTimeInput: DateTimeInputField,
+    TimeInput: TimeInputField,
     FileInput: FileInputField,
     Checkbox: CheckboxField,
     MultiSelect: MultiSelectField,
