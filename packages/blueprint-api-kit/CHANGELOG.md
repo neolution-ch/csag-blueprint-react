@@ -1,5 +1,12 @@
 # @collana-solutions/blueprint-api-kit
 
+## 0.2.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @collana-solutions/blueprint-core@0.2.0
+
 ## 0.1.2
 
 ### Patch Changes
