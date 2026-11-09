@@ -1,5 +1,6 @@
 import { createContext, use } from 'react'
 import type { ReactNode } from 'react'
+import { UiLanguageContext } from '../ui-language'
 
 interface TranslationContextValue<T> {
     translations: T
@@ -17,9 +18,11 @@ export function createTranslationKit<T>() {
         children,
     }: TranslationContextValue<T> & { children: ReactNode }) {
         return (
-            <TranslationContext value={{ translations, languageCode }}>
-                {children}
-            </TranslationContext>
+            <UiLanguageContext value={languageCode}>
+                <TranslationContext value={{ translations, languageCode }}>
+                    {children}
+                </TranslationContext>
+            </UiLanguageContext>
         )
     }
 

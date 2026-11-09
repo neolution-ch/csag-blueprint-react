@@ -1,10 +1,12 @@
 {
   "name": "@collana-solutions/blueprint-i18n",
   "version": "0.1.2",
-  "description": "Typed translation kit for CSAG Blueprint applications: context factory, client cache and ETag helpers, and an empty-translations recovery guard",
+  "description": "Typed translation kit for CSAG Blueprint applications: context factory, client cache and ETag helpers, an empty-translations recovery guard, and date and time formatters",
   "keywords": [
     "i18n",
     "translations",
+    "intl",
+    "date-time",
     "react",
     "csag-blueprint"
   ],
@@ -45,7 +47,7 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && vitest run --config vitest.los-angeles.config.ts",
     "prepack": "pnpm run build"
   },
   "peerDependencies": {
