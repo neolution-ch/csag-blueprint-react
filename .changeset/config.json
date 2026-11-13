@@ -12,7 +12,8 @@
       "@collana-solutions/blueprint-zod-kit",
       "@collana-solutions/blueprint-theming",
       "@collana-solutions/blueprint-form-kit",
-      "@collana-solutions/blueprint-api-kit"
+      "@collana-solutions/blueprint-api-kit",
+      "@collana-solutions/blueprint-realtime"
     ]
   ],
   "linked": [],

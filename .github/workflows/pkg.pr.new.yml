@@ -4,23 +4,20 @@ name: PKG PR New
 # can be pointed at a branch and validated end to end before anything is released to a
 # permanently version-burned npm version.
 #
-# PARKED: this needs the pkg.pr.new GitHub App installed on the repository. Without it the
-# publish step fails with `There is no workflow defined for <id>` (HTTP 404). Install it at
-# https://github.com/apps/pkg-pr-new and then restore the triggers below to:
-#
-#   on:
-#     workflow_dispatch:
-#     pull_request:
-#       types: [opened, synchronize, ready_for_review]
-#     push:
-#       branches: [main]
+# Needs the pkg.pr.new GitHub App on the repository (https://github.com/apps/pkg-pr-new).
+# Without it the publish step fails with `There is no workflow defined for <id>` (HTTP 404).
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+  push:
+    branches: [main]
 
 jobs:
   build:
     name: Publish preview packages
-    if: github.event.pull_request.draft == false
+    # Only pull requests carry a draft flag. A push to main or a manual run always publishes.
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,6 +39,7 @@ jobs:
 
       # Publishes an installable tarball per package for this commit, so the blueprint
       # app can be pointed at a branch and validated end to end before anything is
-      # released to a real, permanently version-burned npm release.
+      # released to a real, permanently version-burned npm release. No --compact: compact
+      # URLs resolve through npm, so they fail for a package that has never been released.
       - name: Publish preview
-        run: pnpm dlx pkg-pr-new publish --pnpm --compact './packages/*'
+        run: pnpm dlx pkg-pr-new publish --pnpm './packages/*'
