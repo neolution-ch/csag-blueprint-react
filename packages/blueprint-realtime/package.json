@@ -1,6 +1,6 @@
 {
   "name": "@collana-solutions/blueprint-realtime",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The browser side of the CSAG Blueprint real-time channel: a provider that connects to Azure SignalR with a ticket from the API, and hooks to subscribe to tenant-scoped signals",
   "keywords": [
     "signalr",
