@@ -70,3 +70,34 @@ useRealtimeEvent('example.reservation.created', async () => {
 
 Every incoming message is checked against `realtimeEventPayloadSchema` (zod) before a subscriber sees
 it. A message that does not match is dropped and reported.
+
+## Testing a subscriber
+
+`@collana-solutions/blueprint-realtime/testing` stands in for the connection in component tests: no
+socket, no ticket and no `@microsoft/signalr`.
+
+```tsx
+import { createRealtimeTestChannel, RealtimeTestProvider } from '@collana-solutions/blueprint-realtime/testing'
+
+const channel = createRealtimeTestChannel()
+
+render(
+    <RealtimeTestProvider channel={channel}>
+        <ReservationList />
+    </RealtimeTestProvider>,
+)
+
+await act(() =>
+    channel.emit({
+        eventName: 'example.reservation.created',
+        entityId,
+        occurredAt,
+    }),
+)
+```
+
+- `emit` delivers an event to the subscribers of its name and waits for their handlers. A handler
+  that throws fails the promise, so the test sees it.
+- `resync()` calls every subscriber without a payload, as a reconnect does.
+- `isSubscribed(eventName)` tells whether a mounted component listens.
+- `RealtimeTestProvider` takes a `status` for `useRealtimeStatus`, `connected` by default.

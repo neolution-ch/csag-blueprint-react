@@ -1,7 +1,8 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  // The test channel sits behind its own entry point, so it never ships in an app bundle.
+  entry: ['src/index.ts', 'src/testing.tsx'],
   format: ['esm'],
   platform: 'browser',
   target: 'es2024',
