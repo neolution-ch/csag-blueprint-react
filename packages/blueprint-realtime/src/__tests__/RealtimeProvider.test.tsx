@@ -715,3 +715,30 @@ it('reports an async subscriber that rejects and still notifies the others', asy
     )
     expect(rejecting).toHaveBeenCalled()
 })
+
+it('retries the first ticket request until the API answers', async () => {
+    realtimeTicket
+        .mockRejectedValueOnce(new Error('503 while the API starts'))
+        .mockResolvedValue({ data: enabledTicket })
+
+    const { getByTestId } = render(
+        <RealtimeProvider
+            fetchTicket={fetchTicket}
+            onError={warn}
+            tenantId="tenant-a"
+        >
+            <StatusBadge />
+        </RealtimeProvider>,
+    )
+
+    // An API that refuses the first ticket while it starts must not keep the channel down for the session.
+    await waitFor(
+        () => expect(getByTestId('status').textContent).toBe('connected'),
+        { timeout: 5000 },
+    )
+    expect(realtimeTicket).toHaveBeenCalledTimes(2)
+    expect(warn).toHaveBeenCalledWith(
+        'Could not obtain a realtime ticket (attempt 1), retrying',
+        expect.any(Error),
+    )
+})

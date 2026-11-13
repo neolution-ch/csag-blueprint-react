@@ -169,17 +169,48 @@ export const RealtimeProvider = ({
 
         const requestTicket = () => fetchTicketRef.current(abort.signal)
 
+        // Waits 1, 2, 4 ... up to 30 seconds before the next attempt, and returns at once on teardown.
+        const waitBeforeRetry = (attempt: number) =>
+            new Promise<void>((resolve) => {
+                // The abort listener is scoped to this one wait. The retry loops are unbounded, so without
+                // removal every attempt would leave another closure attached to a signal that lives until
+                // unmount.
+                const waitScope = new AbortController()
+                const timer = setTimeout(
+                    () => {
+                        waitScope.abort()
+                        resolve()
+                    },
+                    Math.min(MAX_INITIAL_RETRY_DELAY_MS, 1000 * 2 ** attempt),
+                )
+                abort.signal.addEventListener(
+                    'abort',
+                    () => {
+                        clearTimeout(timer)
+                        resolve()
+                    },
+                    { once: true, signal: waitScope.signal },
+                )
+            })
+
         const connect = async () => {
-            let ticket: RealtimeTicket
-            try {
-                ticket = await requestTicket()
-            } catch (error) {
-                // Aborting cancels the request in flight, so a rejection here is the teardown doing its job
-                // rather than a ticket the API refused to issue.
-                if (isAborted()) return
-                report('Could not obtain a realtime ticket', error)
-                setStatus('disconnected')
-                return
+            // The first ticket gets the same backoff as the first connect: the API can be cold-starting or
+            // briefly unavailable, and nothing else asks again until the tenant changes.
+            let ticket: RealtimeTicket | undefined
+            for (let attempt = 0; ticket === undefined; attempt += 1) {
+                try {
+                    ticket = await requestTicket()
+                } catch (error) {
+                    // Aborting cancels the request in flight, so a rejection here is the teardown doing its
+                    // job rather than a ticket the API refused to issue.
+                    if (isAborted()) return
+                    report(
+                        `Could not obtain a realtime ticket (attempt ${String(attempt + 1)}), retrying`,
+                        error,
+                    )
+                    await waitBeforeRetry(attempt)
+                    if (isAborted()) return
+                }
             }
 
             // The status is shared across tenants, so an answer that arrives after a switch must not
@@ -280,28 +311,7 @@ export const RealtimeProvider = ({
                         `Realtime connection failed (attempt ${String(attempt + 1)}), retrying`,
                         error,
                     )
-                    const delay = Math.min(
-                        MAX_INITIAL_RETRY_DELAY_MS,
-                        1000 * 2 ** attempt,
-                    )
-                    await new Promise<void>((resolve) => {
-                        // The abort listener is scoped to this one wait. The loop above is unbounded, so without
-                        // removal every attempt would leave another closure attached to a signal that lives
-                        // until unmount.
-                        const waitScope = new AbortController()
-                        const timer = setTimeout(() => {
-                            waitScope.abort()
-                            resolve()
-                        }, delay)
-                        abort.signal.addEventListener(
-                            'abort',
-                            () => {
-                                clearTimeout(timer)
-                                resolve()
-                            },
-                            { once: true, signal: waitScope.signal },
-                        )
-                    })
+                    await waitBeforeRetry(attempt)
                 }
             }
         }
